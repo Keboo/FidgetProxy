@@ -1,29 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net60</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
     <AssemblyOriginatorKeyFile>StrongNameKey.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\.github\lib\rootCert.pfx" Link="rootCert.pfx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Certificate" Version="6.0.12" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.0.1" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.0.1" />
-    <PackageReference Include="System.IO.Pipelines" Version="7.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Certificate" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="MSTest.TestAdapter" />
+    <PackageReference Include="MSTest.TestFramework" />
+    <PackageReference Include="System.IO.Pipelines" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Titanium.Web.Proxy\Titanium.Web.Proxy.csproj" />
+    <ProjectReference Include="..\Titanium.Web.Proxy\Titanium.Web.Proxy.csproj" />
   </ItemGroup>
 
 </Project>
