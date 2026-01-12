@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Keboo.FidgetProxy": {
+      "commandName": "Project"
+    },
+    "Display Help": {
+      "commandName": "Project",
+      "commandLineArgs": "--help"
+    }
+  }
+}

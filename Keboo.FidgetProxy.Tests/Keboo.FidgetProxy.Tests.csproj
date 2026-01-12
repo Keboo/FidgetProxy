@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="Moq.AutoMock" />
+    <PackageReference Include="System.CommandLine" />
+    <PackageReference Include="TUnit" />
+    <PackageReference Include="TUnit.Assertions" />
+    <PackageReference Include="TUnit.Engine" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Keboo.FidgetProxy\Keboo.FidgetProxy.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="TUnit.Assertions" />
+    <Using Include="TUnit.Assertions.Extensions" />
+    <Using Include="TUnit.Core" />
+    <Using Include="Moq" />
+    <Using Include="Moq.AutoMock" />
+  </ItemGroup>
+
+</Project>
