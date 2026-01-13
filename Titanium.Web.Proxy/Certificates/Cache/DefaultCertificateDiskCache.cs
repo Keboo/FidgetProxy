@@ -70,7 +70,7 @@ public sealed class DefaultCertificateDiskCache : ICertificateCache
             return null;
         }
 
-        return new X509Certificate2(exported, password, storageFlags);
+        return X509CertificateLoader.LoadPkcs12(exported, password, storageFlags);
     }
 
     private string GetRootCertificatePath(string pathOrName)

@@ -546,8 +546,10 @@ internal class TcpConnectionFactory : IDisposable
                 if (sessionArgs != null) sessionArgs.TimeLine["HTTPS Established"] = DateTime.UtcNow;
             }
         }
+#pragma warning disable SYSLIB0039
         catch (IOException ex) when (ex.HResult == unchecked((int)0x80131620) && retry &&
                                      enabledSslProtocols >= SslProtocols.Tls11)
+#pragma warning restore SYSLIB0039
         {
             stream?.Dispose();
             tcpServerSocket?.Close();
@@ -561,8 +563,10 @@ internal class TcpConnectionFactory : IDisposable
             retry = false;
             goto retry;
         }
+#pragma warning disable SYSLIB0039
         catch (AuthenticationException ex) when (ex.HResult == unchecked((int)0x80131501) && retry &&
                                                  enabledSslProtocols >= SslProtocols.Tls11)
+#pragma warning restore SYSLIB0039
         {
             stream?.Dispose();
             tcpServerSocket?.Close();

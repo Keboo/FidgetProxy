@@ -297,7 +297,7 @@ internal class WinCertificateMaker : ICertificateMaker
         var empty = (string)typeX509Enrollment.InvokeMember("CreatePFX", BindingFlags.InvokeMethod, null,
             x509Enrollment, typeValue);
 
-        return new X509Certificate2(Convert.FromBase64String(empty), string.Empty, X509KeyStorageFlags.Exportable);
+        return X509CertificateLoader.LoadPkcs12(Convert.FromBase64String(empty), string.Empty, X509KeyStorageFlags.Exportable);
     }
 }
 

@@ -182,7 +182,7 @@ internal class BcCertificateMakerFast : ICertificateMaker
         {
             store.Save(ms, password.ToCharArray(), new SecureRandom(new CryptoApiRandomGenerator()));
 
-            return new X509Certificate2(ms.ToArray(), password, X509KeyStorageFlags.Exportable);
+            return X509CertificateLoader.LoadPkcs12(ms.ToArray(), password, X509KeyStorageFlags.Exportable);
         }
     }
 
@@ -205,7 +205,8 @@ internal class BcCertificateMakerFast : ICertificateMaker
         if (signingCertificate == null)
             return GenerateCertificate(null, subjectName, subjectName, validFrom, validTo, KeyPair);
 
-        var kp = DotNetUtilities.GetKeyPair(signingCertificate.PrivateKey);
+        var privateKey = signingCertificate.GetRSAPrivateKey() ?? throw new InvalidOperationException("Certificate does not have an RSA private key");
+        var kp = DotNetUtilities.GetKeyPair(privateKey);
         return GenerateCertificate(hostName, subjectName, signingCertificate.Subject, validFrom, validTo, KeyPair,
             issuerPrivateKey: kp.Private);
     }

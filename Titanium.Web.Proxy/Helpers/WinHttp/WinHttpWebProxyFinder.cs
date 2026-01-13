@@ -153,7 +153,6 @@ internal sealed class WinHttpWebProxyFinder : IDisposable
     private ProxyInfo GetProxyInfo()
     {
         var proxyConfig = new NativeMethods.WinHttp.WinhttpCurrentUserIeProxyConfig();
-        RuntimeHelpers.PrepareConstrainedRegions();
         try
         {
             ProxyInfo result;
@@ -229,7 +228,6 @@ internal sealed class WinHttpWebProxyFinder : IDisposable
         proxyListString = null;
         bool flag;
         var proxyInfo = new NativeMethods.WinHttp.WinhttpProxyInfo();
-        RuntimeHelpers.PrepareConstrainedRegions();
         try
         {
             flag = NativeMethods.WinHttp.WinHttpGetProxyForUrl(session, destination, ref autoProxyOptions,
