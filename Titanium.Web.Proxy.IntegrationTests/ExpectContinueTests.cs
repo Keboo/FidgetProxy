@@ -10,6 +10,7 @@ using Titanium.Web.Proxy.IntegrationTests.Helpers;
 
 namespace Titanium.Web.Proxy.IntegrationTests;
 
+[NotInParallel]
 public class ExpectContinueTests
 {
     [Test]

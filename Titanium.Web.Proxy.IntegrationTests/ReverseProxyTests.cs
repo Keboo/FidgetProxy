@@ -11,6 +11,7 @@ using Titanium.Web.Proxy.Models;
 
 namespace Titanium.Web.Proxy.IntegrationTests;
 
+[NotInParallel]
 public class ReverseProxyTests
 {
     [Test]

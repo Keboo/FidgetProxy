@@ -9,6 +9,7 @@ using TUnit.Assertions.Extensions;
 
 namespace Titanium.Web.Proxy.IntegrationTests;
 
+[NotInParallel]
 public class StressTests
 {
     [Test]
