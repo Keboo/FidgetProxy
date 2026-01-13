@@ -3,19 +3,20 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TUnit.Core;
+using TUnit.Assertions;
+using TUnit.Assertions.Extensions;
 using Titanium.Web.Proxy.Network;
 
 namespace Titanium.Web.Proxy.UnitTests
 {
-    [TestClass]
     public class CertificateManagerTests
     {
         private static readonly string[] hostNames
             = { "facebook.com", "youtube.com", "google.com", "bing.com", "yahoo.com" };
 
 
-        [TestMethod]
+        [Test]
         public async Task Simple_BC_Create_Certificate_Test()
         {
             var tasks = new List<Task>();
@@ -30,11 +31,11 @@ namespace Titanium.Web.Proxy.UnitTests
             };
             mgr.ClearIdleCertificates();
             for (var i = 0; i < 5; i++)
-                tasks.AddRange(hostNames.Select(host => Task.Run(() =>
+                tasks.AddRange(hostNames.Select(host => Task.Run(async () =>
                 {
                     // get the connection
                     var certificate = mgr.CreateCertificate(host, false);
-                    Assert.IsNotNull(certificate);
+                    await Assert.That(certificate is not null).IsTrue();
                 })));
 
             await Task.WhenAll(tasks.ToArray());
@@ -60,11 +61,11 @@ namespace Titanium.Web.Proxy.UnitTests
             mgr.ClearIdleCertificates();
 
             for (var i = 0; i < 5; i++)
-                tasks.AddRange(hostNames.Select(host => Task.Run(() =>
+                tasks.AddRange(hostNames.Select(host => Task.Run(async () =>
                 {
                     // get the connection
                     var certificate = mgr.CreateCertificate(host, false);
-                    Assert.IsNotNull(certificate);
+                    await Assert.That(certificate is not null).IsTrue();
                 })));
 
             await Task.WhenAll(tasks.ToArray());
@@ -72,7 +73,7 @@ namespace Titanium.Web.Proxy.UnitTests
             mgr.StopClearIdleCertificates();
         }
 
-        [TestMethod]
+        [Test]
         public async Task Create_Server_Certificate_Test()
         {
             var tasks = new List<Task>();
@@ -87,10 +88,10 @@ namespace Titanium.Web.Proxy.UnitTests
             mgr.SaveFakeCertificates = true;
 
             for (var i = 0; i < 500; i++)
-                tasks.AddRange(hostNames.Select(host => Task.Run(() =>
+                tasks.AddRange(hostNames.Select(host => Task.Run(async () =>
                 {
                     var certificate = mgr.CreateServerCertificate(host);
-                    Assert.IsNotNull(certificate);
+                    await Assert.That(certificate is not null).IsTrue();
                 })));
 
             await Task.WhenAll(tasks.ToArray());

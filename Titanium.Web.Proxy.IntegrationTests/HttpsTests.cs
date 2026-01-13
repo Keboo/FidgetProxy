@@ -3,14 +3,15 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TUnit.Core;
+using TUnit.Assertions;
+using TUnit.Assertions.Extensions;
 
 namespace Titanium.Web.Proxy.IntegrationTests;
 
-[TestClass]
 public class HttpsTests
 {
-    [TestMethod]
+    [Test]
     public async Task Can_Handle_Https_Request()
     {
         var testSuite = new TestSuite();
@@ -27,13 +28,13 @@ public class HttpsTests
         var response = await client.PostAsync(new Uri(server.ListeningHttpsUrl),
             new StringContent("hello server. I am a client."));
 
-        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         var body = await response.Content.ReadAsStringAsync();
 
-        Assert.AreEqual("I am server. I received your greetings.", body);
+        await Assert.That(body).IsEqualTo("I am server. I received your greetings.");
     }
 
-    [TestMethod]
+    [Test]
     public async Task Can_Handle_Https_Fake_Tunnel_Request()
     {
         var testSuite = new TestSuite();
@@ -56,13 +57,13 @@ public class HttpsTests
         var response = await client.PostAsync(new Uri($"https://{Guid.NewGuid().ToString()}.com"),
             new StringContent("hello server. I am a client."));
 
-        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         var body = await response.Content.ReadAsStringAsync();
 
-        Assert.AreEqual("I am server. I received your greetings.", body);
+        await Assert.That(body).IsEqualTo("I am server. I received your greetings.");
     }
 
-    [TestMethod]
+    [Test]
     public async Task Can_Handle_Https_Mutual_Tls_Request()
     {
         var testSuite = new TestSuite(true);
@@ -87,9 +88,9 @@ public class HttpsTests
         var response = await client.PostAsync(new Uri(server.ListeningHttpsUrl),
             new StringContent("hello server. I am a client."));
 
-        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         var body = await response.Content.ReadAsStringAsync();
 
-        Assert.AreEqual("I am server. I received your greetings.", body);
+        await Assert.That(body).IsEqualTo("I am server. I received your greetings.");
     }
 }

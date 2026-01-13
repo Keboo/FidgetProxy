@@ -14,8 +14,6 @@
   <ItemGroup>
     <PackageReference Include="BrotliSharpLib" />
     <PackageReference Include="BouncyCastle.Cryptography" />
-    <PackageReference Include="Microsoft.Win32.Registry" />
-    <PackageReference Include="System.Security.Principal.Windows" />
   </ItemGroup>
 
   <ItemGroup>

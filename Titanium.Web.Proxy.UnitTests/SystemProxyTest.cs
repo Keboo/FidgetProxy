@@ -1,32 +1,33 @@
 ﻿using System;
 using System.Net;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TUnit.Core;
+using TUnit.Assertions;
+using TUnit.Assertions.Extensions;
 using Titanium.Web.Proxy.Helpers;
 using Titanium.Web.Proxy.Helpers.WinHttp;
 using Titanium.Web.Proxy.Models;
 
 namespace Titanium.Web.Proxy.UnitTests
 {
-    [TestClass]
     public class SystemProxyTest
     {
-        [TestMethod]
-        public void CompareProxyAddressReturnedByWebProxyAndWinHttpProxyResolver()
+        [Test]
+        public async Task CompareProxyAddressReturnedByWebProxyAndWinHttpProxyResolver()
         {
             var proxyManager = new SystemProxyManager();
 
             try
             {
-                CompareUrls();
+                await CompareUrls();
 
                 proxyManager.SetProxy("127.0.0.1", 8000, ProxyProtocolType.Http);
-                CompareUrls();
+                await CompareUrls();
 
                 proxyManager.SetProxy("127.0.0.1", 8000, ProxyProtocolType.Https);
-                CompareUrls();
+                await CompareUrls();
 
                 proxyManager.SetProxy("127.0.0.1", 8000, ProxyProtocolType.AllHttp);
-                CompareUrls();
+                await CompareUrls();
 
                 // for this test you need to add a proxy.pac file to a local webserver
                 //function FindProxyForURL(url, host)
@@ -43,25 +44,25 @@ namespace Titanium.Web.Proxy.UnitTests
                 //CompareUrls();
 
                 proxyManager.SetProxyOverride("<-loopback>");
-                CompareUrls();
+                await CompareUrls();
 
                 proxyManager.SetProxyOverride("<local>");
-                CompareUrls();
+                await CompareUrls();
 
                 proxyManager.SetProxyOverride("yahoo.com");
-                CompareUrls();
+                await CompareUrls();
 
                 proxyManager.SetProxyOverride("*.local");
-                CompareUrls();
+                await CompareUrls();
 
                 proxyManager.SetProxyOverride("http://*.local");
-                CompareUrls();
+                await CompareUrls();
 
                 proxyManager.SetProxyOverride("<-loopback>;*.local");
-                CompareUrls();
+                await CompareUrls();
 
                 proxyManager.SetProxyOverride("<-loopback>;*.local;<local>");
-                CompareUrls();
+                await CompareUrls();
             }
             finally
             {
@@ -69,17 +70,17 @@ namespace Titanium.Web.Proxy.UnitTests
             }
         }
 
-        private void CompareUrls()
+        private async Task CompareUrls()
         {
             var webProxy = WebRequest.GetSystemWebProxy();
 
             var resolver = new WinHttpWebProxyFinder();
             resolver.LoadFromIe();
 
-            CompareProxy(webProxy, resolver, "http://127.0.0.1");
-            CompareProxy(webProxy, resolver, "https://127.0.0.1");
-            CompareProxy(webProxy, resolver, "http://localhost");
-            CompareProxy(webProxy, resolver, "https://localhost");
+            await CompareProxy(webProxy, resolver, "http://127.0.0.1");
+            await CompareProxy(webProxy, resolver, "https://127.0.0.1");
+            await CompareProxy(webProxy, resolver, "http://localhost");
+            await CompareProxy(webProxy, resolver, "https://localhost");
 
             string hostName = null;
             try
@@ -92,21 +93,21 @@ namespace Titanium.Web.Proxy.UnitTests
 
             if (hostName != null)
             {
-                CompareProxy(webProxy, resolver, "http://" + hostName);
-                CompareProxy(webProxy, resolver, "https://" + hostName);
+                await CompareProxy(webProxy, resolver, "http://" + hostName);
+                await CompareProxy(webProxy, resolver, "https://" + hostName);
             }
 
-            CompareProxy(webProxy, resolver, "http://google.com");
-            CompareProxy(webProxy, resolver, "https://google.com");
-            CompareProxy(webProxy, resolver, "http://bing.com");
-            CompareProxy(webProxy, resolver, "https://bing.com");
-            CompareProxy(webProxy, resolver, "http://yahoo.com");
-            CompareProxy(webProxy, resolver, "https://yahoo.com");
-            CompareProxy(webProxy, resolver, "http://test.local");
-            CompareProxy(webProxy, resolver, "https://test.local");
+            await CompareProxy(webProxy, resolver, "http://google.com");
+            await CompareProxy(webProxy, resolver, "https://google.com");
+            await CompareProxy(webProxy, resolver, "http://bing.com");
+            await CompareProxy(webProxy, resolver, "https://bing.com");
+            await CompareProxy(webProxy, resolver, "http://yahoo.com");
+            await CompareProxy(webProxy, resolver, "https://yahoo.com");
+            await CompareProxy(webProxy, resolver, "http://test.local");
+            await CompareProxy(webProxy, resolver, "https://test.local");
         }
 
-        private void CompareProxy(IWebProxy webProxy, WinHttpWebProxyFinder resolver, string url)
+        private async Task CompareProxy(IWebProxy webProxy, WinHttpWebProxyFinder resolver, string url)
         {
             var uri = new Uri(url);
 
@@ -138,7 +139,7 @@ namespace Titanium.Web.Proxy.UnitTests
             }
 
             // Both found a proxy, verify they match
-            Assert.AreEqual(expectedProxyUri.ToString(), $"http://{proxy.HostName}:{proxy.Port}/");
+            await Assert.That(expectedProxyUri.ToString()).IsEqualTo($"http://{proxy.HostName}:{proxy.Port}/");
         }
     }
 }

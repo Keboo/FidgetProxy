@@ -4,15 +4,16 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TUnit.Core;
+using TUnit.Assertions;
+using TUnit.Assertions.Extensions;
 using Titanium.Web.Proxy.Models;
 
 namespace Titanium.Web.Proxy.IntegrationTests;
 
-[TestClass]
 public class ReverseProxyTests
 {
-    [TestMethod]
+    [Test]
     public async Task Smoke_Test_Http_To_Http_Reverse_Proxy()
     {
         var testSuite = new TestSuite();
@@ -35,13 +36,13 @@ public class ReverseProxyTests
         var response = await client.PostAsync(new Uri($"http://localhost:{proxy.ProxyEndPoints[0].Port}"),
             new StringContent("hello server. I am a client."));
 
-        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         var body = await response.Content.ReadAsStringAsync();
 
-        Assert.AreEqual("I am server. I received your greetings.", body);
+        await Assert.That(body).IsEqualTo("I am server. I received your greetings.");
     }
 
-    [TestMethod]
+    [Test]
     public async Task Smoke_Test_Https_To_Http_Reverse_Proxy()
     {
         var testSuite = new TestSuite();
@@ -64,13 +65,13 @@ public class ReverseProxyTests
         var response = await client.PostAsync(new Uri($"https://localhost:{proxy.ProxyEndPoints[0].Port}"),
             new StringContent("hello server. I am a client."));
 
-        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         var body = await response.Content.ReadAsStringAsync();
 
-        Assert.AreEqual("I am server. I received your greetings.", body);
+        await Assert.That(body).IsEqualTo("I am server. I received your greetings.");
     }
 
-    [TestMethod]
+    [Test]
     public async Task Smoke_Test_Http_To_Https_Reverse_Proxy()
     {
         var testSuite = new TestSuite();
@@ -93,13 +94,13 @@ public class ReverseProxyTests
         var response = await client.PostAsync(new Uri($"http://localhost:{proxy.ProxyEndPoints[0].Port}"),
             new StringContent("hello server. I am a client."));
 
-        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         var body = await response.Content.ReadAsStringAsync();
 
-        Assert.AreEqual("I am server. I received your greetings.", body);
+        await Assert.That(body).IsEqualTo("I am server. I received your greetings.");
     }
 
-    [TestMethod]
+    [Test]
     public async Task Smoke_Test_Https_To_Https_Reverse_Proxy()
     {
         var testSuite = new TestSuite();
@@ -122,13 +123,13 @@ public class ReverseProxyTests
         var response = await client.PostAsync(new Uri($"https://localhost:{proxy.ProxyEndPoints[0].Port}"),
             new StringContent("hello server. I am a client."));
 
-        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         var body = await response.Content.ReadAsStringAsync();
 
-        Assert.AreEqual("I am server. I received your greetings.", body);
+        await Assert.That(body).IsEqualTo("I am server. I received your greetings.");
     }
 
-    [TestMethod]
+    [Test]
     public async Task Smoke_Test_Https_To_Https_Reverse_Proxy_Tunnel_Without_Decryption()
     {
         var testSuite = new TestSuite();
@@ -154,9 +155,9 @@ public class ReverseProxyTests
         var response = await client.PostAsync(new Uri($"https://localhost:{proxy.ProxyEndPoints[0].Port}"),
             new StringContent("hello server. I am a client."));
 
-        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         var body = await response.Content.ReadAsStringAsync();
 
-        Assert.AreEqual("I am server. I received your greetings.", body);
+        await Assert.That(body).IsEqualTo("I am server. I received your greetings.");
     }
 }

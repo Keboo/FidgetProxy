@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Net;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TUnit.Core;
+using TUnit.Assertions;
+using TUnit.Assertions.Extensions;
 using Titanium.Web.Proxy.Models;
 
 namespace Titanium.Web.Proxy.UnitTests
 {
-    [TestClass]
     public class ProxyServerTests
     {
-        [TestMethod]
-        public void
+        [Test]
+        public async Task
             GivenOneEndpointIsAlreadyAddedToAddress_WhenAddingNewEndpointToExistingAddress_ThenExceptionIsThrown()
         {
             // Arrange
@@ -20,22 +21,18 @@ namespace Titanium.Web.Proxy.UnitTests
             proxy.AddEndPoint(new ExplicitProxyEndPoint(firstIpAddress, port, false));
 
             // Act
-            try
+            var exception = await Assert.ThrowsAsync<Exception>(async () =>
             {
                 proxy.AddEndPoint(new ExplicitProxyEndPoint(secondIpAddress, port, false));
-            }
-            catch (Exception exc)
-            {
-                // Assert
-                StringAssert.Contains(exc.Message, "Cannot add another endpoint to same port");
-                return;
-            }
+                await Task.CompletedTask;
+            });
 
-            Assert.Fail("An exception should be thrown by now");
+            // Assert
+            await Assert.That(exception.Message).Contains("Cannot add another endpoint to same port");
         }
 
-        [TestMethod]
-        public void
+        [Test]
+        public async Task
             GivenOneEndpointIsAlreadyAddedToAddress_WhenAddingNewEndpointToExistingAddress_ThenTwoEndpointsExists()
         {
             // Arrange
@@ -49,11 +46,11 @@ namespace Titanium.Web.Proxy.UnitTests
             proxy.AddEndPoint(new ExplicitProxyEndPoint(secondIpAddress, port, false));
 
             // Assert
-            Assert.AreEqual(2, proxy.ProxyEndPoints.Count);
+            await Assert.That(proxy.ProxyEndPoints.Count).IsEqualTo(2);
         }
 
-        [TestMethod]
-        public void GivenOneEndpointIsAlreadyAddedToPort_WhenAddingNewEndpointToExistingPort_ThenExceptionIsThrown()
+        [Test]
+        public async Task GivenOneEndpointIsAlreadyAddedToPort_WhenAddingNewEndpointToExistingPort_ThenExceptionIsThrown()
         {
             // Arrange
             var proxy = new ProxyServer();
@@ -61,22 +58,18 @@ namespace Titanium.Web.Proxy.UnitTests
             proxy.AddEndPoint(new ExplicitProxyEndPoint(IPAddress.Loopback, port, false));
 
             // Act
-            try
+            var exception = await Assert.ThrowsAsync<Exception>(async () =>
             {
                 proxy.AddEndPoint(new ExplicitProxyEndPoint(IPAddress.Loopback, port, false));
-            }
-            catch (Exception exc)
-            {
-                // Assert
-                StringAssert.Contains(exc.Message, "Cannot add another endpoint to same port");
-                return;
-            }
+                await Task.CompletedTask;
+            });
 
-            Assert.Fail("An exception should be thrown by now");
+            // Assert
+            await Assert.That(exception.Message).Contains("Cannot add another endpoint to same port");
         }
 
-        [TestMethod]
-        public void
+        [Test]
+        public async Task
             GivenOneEndpointIsAlreadyAddedToZeroPort_WhenAddingNewEndpointToExistingPort_ThenTwoEndpointsExists()
         {
             // Arrange
@@ -88,7 +81,7 @@ namespace Titanium.Web.Proxy.UnitTests
             proxy.AddEndPoint(new ExplicitProxyEndPoint(IPAddress.Loopback, port, false));
 
             // Assert
-            Assert.AreEqual(2, proxy.ProxyEndPoints.Count);
+            await Assert.That(proxy.ProxyEndPoints.Count).IsEqualTo(2);
         }
     }
 }

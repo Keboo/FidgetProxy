@@ -4,15 +4,16 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TUnit.Core;
+using TUnit.Assertions;
+using TUnit.Assertions.Extensions;
 using Titanium.Web.Proxy.Models;
 
 namespace Titanium.Web.Proxy.IntegrationTests;
 
-[TestClass]
 public class NestedProxyTests
 {
-    [TestMethod]
+    [Test]
     public async Task Smoke_Test_Nested_Proxy()
     {
         var testSuite = new TestSuite();
@@ -31,13 +32,13 @@ public class NestedProxyTests
         var response = await client.PostAsync(new Uri(server.ListeningHttpsUrl),
             new StringContent("hello server. I am a client."));
 
-        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         var body = await response.Content.ReadAsStringAsync();
 
-        Assert.AreEqual("I am server. I received your greetings.", body);
+        await Assert.That(body).IsEqualTo("I am server. I received your greetings.");
     }
 
-    [TestMethod]
+    [Test]
     public async Task Smoke_Test_Nested_Proxy_UserData()
     {
         var testSuite = new TestSuite();
@@ -59,7 +60,7 @@ public class NestedProxyTests
 
         proxy1.GetCustomUpStreamProxyFunc = async session =>
         {
-            Assert.AreEqual("Test", session.UserData);
+            await Assert.That(session.UserData).IsEqualTo("Test");
 
             return await Task.FromResult(new ExternalProxy("localhost", proxy2.ProxyEndPoints[0].Port));
         };
@@ -69,15 +70,15 @@ public class NestedProxyTests
         var response = await client.PostAsync(new Uri(server.ListeningHttpsUrl),
             new StringContent("hello server. I am a client."));
 
-        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         var body = await response.Content.ReadAsStringAsync();
 
-        Assert.AreEqual("I am server. I received your greetings.", body);
+        await Assert.That(body).IsEqualTo("I am server. I received your greetings.");
     }
 
-    [TestMethod]
+    [Test]
     [Timeout(2 * 60 * 1000)]
-    public async Task Nested_Proxy_Farm_Without_Connection_Cache_Should_Not_Hang()
+    public async Task Nested_Proxy_Farm_Without_Connection_Cache_Should_Not_Hang(CancellationToken cancellationToken)
     {
         var rnd = new Random();
 
@@ -160,9 +161,9 @@ public class NestedProxyTests
 
     //Reproduce bug reported so that we can fix it.
     //https://github.com/justcoding121/titanium-web-proxy/issues/826
-    [TestMethod]
+    [Test]
     [Timeout(2 * 60 * 1000)]
-    public async Task Nested_Proxy_Farm_With_Connection_Cache_Should_Not_Hang()
+    public async Task Nested_Proxy_Farm_With_Connection_Cache_Should_Not_Hang(CancellationToken cancellationToken)
     {
         var rnd = new Random();
 

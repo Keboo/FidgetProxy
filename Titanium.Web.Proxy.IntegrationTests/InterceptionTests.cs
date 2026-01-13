@@ -3,14 +3,15 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TUnit.Core;
+using TUnit.Assertions;
+using TUnit.Assertions.Extensions;
 
 namespace Titanium.Web.Proxy.IntegrationTests;
 
-[TestClass]
 public class InterceptionTests
 {
-    [TestMethod]
+    [Test]
     public async Task Can_Intercept_Get_Requests()
     {
         var testSuite = new TestSuite();
@@ -40,14 +41,14 @@ public class InterceptionTests
 
         var response = await client.GetAsync(new Uri(server.ListeningHttpUrl));
 
-        Assert.IsFalse(serverCalled, "Server should not be called.");
-        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        await Assert.That(serverCalled).IsFalse();
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
         var body = await response.Content.ReadAsStringAsync();
-        Assert.IsTrue(body.Contains("TitaniumWebProxy-Stopped!!"));
+        await Assert.That(body.Contains("TitaniumWebProxy-Stopped!!")).IsTrue();
     }
 
-    [TestMethod]
+    [Test]
     public async Task Can_Intercept_Post_Requests()
     {
         var testSuite = new TestSuite();
@@ -75,13 +76,13 @@ public class InterceptionTests
         var response = await client.PostAsync(new Uri(server.ListeningHttpUrl),
             new StringContent("hello server. I am a client."));
 
-        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
         var body = await response.Content.ReadAsStringAsync();
-        Assert.IsTrue(body.Contains("TitaniumWebProxy-Stopped!!"));
+        await Assert.That(body.Contains("TitaniumWebProxy-Stopped!!")).IsTrue();
     }
 
-    [TestMethod]
+    [Test]
     public async Task Can_Intercept_Put_Requests()
     {
         var testSuite = new TestSuite();
@@ -109,14 +110,14 @@ public class InterceptionTests
         var response = await client.PutAsync(new Uri(server.ListeningHttpUrl),
             new StringContent("hello server. I am a client."));
 
-        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
         var body = await response.Content.ReadAsStringAsync();
-        Assert.IsTrue(body.Contains("TitaniumWebProxy-Stopped!!"));
+        await Assert.That(body.Contains("TitaniumWebProxy-Stopped!!")).IsTrue();
     }
 
 
-    [TestMethod]
+    [Test]
     public async Task Can_Intercept_Patch_Requests()
     {
         var testSuite = new TestSuite();
@@ -144,13 +145,13 @@ public class InterceptionTests
         var response = await client.PatchAsync(new Uri(server.ListeningHttpUrl),
             new StringContent("hello server. I am a client."));
 
-        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
         var body = await response.Content.ReadAsStringAsync();
-        Assert.IsTrue(body.Contains("TitaniumWebProxy-Stopped!!"));
+        await Assert.That(body.Contains("TitaniumWebProxy-Stopped!!")).IsTrue();
     }
 
-    [TestMethod]
+    [Test]
     public async Task Can_Intercept_Delete_Requests()
     {
         var testSuite = new TestSuite();
@@ -177,9 +178,9 @@ public class InterceptionTests
 
         var response = await client.DeleteAsync(new Uri(server.ListeningHttpUrl));
 
-        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
         var body = await response.Content.ReadAsStringAsync();
-        Assert.IsTrue(body.Contains("TitaniumWebProxy-Stopped!!"));
+        await Assert.That(body.Contains("TitaniumWebProxy-Stopped!!")).IsTrue();
     }
 }

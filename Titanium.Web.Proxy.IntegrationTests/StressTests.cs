@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TUnit.Core;
+using TUnit.Assertions;
+using TUnit.Assertions.Extensions;
 
 namespace Titanium.Web.Proxy.IntegrationTests;
 
-[TestClass]
 public class StressTests
 {
-    [TestMethod]
+    [Test]
     [Timeout(2 * 60 * 1000)]
-    public async Task Stress_Test_With_One_Server_And_Many_Clients()
+    public async Task Stress_Test_With_One_Server_And_Many_Clients(CancellationToken cancellationToken)
     {
         var testSuite = new TestSuite();
 
