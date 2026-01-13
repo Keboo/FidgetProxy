@@ -18,32 +18,32 @@ internal class WinCertificateMaker : ICertificateMaker
 
     private readonly string sProviderName = "Microsoft Enhanced Cryptographic Provider v1.0";
 
-    private readonly Type typeAltNamesCollection;
+    private readonly Type? typeAltNamesCollection;
 
-    private readonly Type typeBasicConstraints;
+    private readonly Type? typeBasicConstraints;
 
-    private readonly Type typeCAlternativeName;
+    private readonly Type? typeCAlternativeName;
 
-    private readonly Type typeEkuExt;
+    private readonly Type? typeEkuExt;
 
-    private readonly Type typeExtNames;
+    private readonly Type? typeExtNames;
 
-    private readonly Type typeKuExt;
+    private readonly Type? typeKuExt;
 
-    private readonly Type typeOid;
+    private readonly Type? typeOid;
 
-    private readonly Type typeOids;
+    private readonly Type? typeOids;
 
-    private readonly Type typeRequestCert;
+    private readonly Type? typeRequestCert;
 
-    private readonly Type typeSignerCertificate;
-    private readonly Type typeX500Dn;
+    private readonly Type? typeSignerCertificate;
+    private readonly Type? typeX500Dn;
 
-    private readonly Type typeX509Enrollment;
+    private readonly Type? typeX509Enrollment;
 
-    private readonly Type typeX509Extensions;
+    private readonly Type? typeX509Extensions;
 
-    private readonly Type typeX509PrivateKey;
+    private readonly Type? typeX509PrivateKey;
 
     // Validity Days for Root Certificates Generated.
     private readonly int certificateValidDays;

@@ -82,7 +82,7 @@ namespace Keboo.Web.Proxy.UnitTests
             await CompareProxy(webProxy, resolver, "http://localhost");
             await CompareProxy(webProxy, resolver, "https://localhost");
 
-            string hostName = null;
+            string? hostName = null;
             try
             {
                 hostName = Dns.GetHostName();
