@@ -1,0 +1,187 @@
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using TUnit.Core;
+using TUnit.Assertions;
+using TUnit.Assertions.Extensions;
+
+namespace Keboo.Web.Proxy.IntegrationTests;
+
+[NotInParallel]
+public class InterceptionTests
+{
+    [Test]
+    public async Task Can_Intercept_Get_Requests()
+    {
+        var testSuite = new TestSuite();
+
+        var serverCalled = false;
+
+        var server = testSuite.GetServer();
+        server.HandleRequest(context =>
+        {
+            serverCalled = true;
+            return context.Response.WriteAsync("I am server. I received your greetings.");
+        });
+
+        var proxy = testSuite.GetProxy();
+        proxy.BeforeRequest += async (sender, e) =>
+        {
+            if (e.HttpClient.Request.Url.Contains("localhost"))
+            {
+                e.Ok("<html><body>KebooWebProxy-Stopped!!</body></html>");
+                return;
+            }
+
+            await Task.FromResult(0);
+        };
+
+        var client = testSuite.GetClient(proxy);
+
+        var response = await client.GetAsync(new Uri(server.ListeningHttpUrl));
+
+        await Assert.That(serverCalled).IsFalse();
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+        var body = await response.Content.ReadAsStringAsync();
+        await Assert.That(body.Contains("KebooWebProxy-Stopped!!")).IsTrue();
+    }
+
+    [Test]
+    public async Task Can_Intercept_Post_Requests()
+    {
+        var testSuite = new TestSuite();
+
+        var server = testSuite.GetServer();
+        server.HandleRequest(context =>
+        {
+            return context.Response.WriteAsync("I am server. I received your greetings.");
+        });
+
+        var proxy = testSuite.GetProxy();
+        proxy.BeforeRequest += async (sender, e) =>
+        {
+            if (e.HttpClient.Request.Url.Contains("localhost"))
+            {
+                e.Ok("<html><body>KebooWebProxy-Stopped!!</body></html>");
+                return;
+            }
+
+            await Task.FromResult(0);
+        };
+
+        var client = testSuite.GetClient(proxy);
+
+        var response = await client.PostAsync(new Uri(server.ListeningHttpUrl),
+            new StringContent("hello server. I am a client."));
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+        var body = await response.Content.ReadAsStringAsync();
+        await Assert.That(body.Contains("KebooWebProxy-Stopped!!")).IsTrue();
+    }
+
+    [Test]
+    public async Task Can_Intercept_Put_Requests()
+    {
+        var testSuite = new TestSuite();
+
+        var server = testSuite.GetServer();
+        server.HandleRequest(context =>
+        {
+            return context.Response.WriteAsync("I am server. I received your greetings.");
+        });
+
+        var proxy = testSuite.GetProxy();
+        proxy.BeforeRequest += async (sender, e) =>
+        {
+            if (e.HttpClient.Request.Url.Contains("localhost"))
+            {
+                e.Ok("<html><body>KebooWebProxy-Stopped!!</body></html>");
+                return;
+            }
+
+            await Task.FromResult(0);
+        };
+
+        var client = testSuite.GetClient(proxy);
+
+        var response = await client.PutAsync(new Uri(server.ListeningHttpUrl),
+            new StringContent("hello server. I am a client."));
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+        var body = await response.Content.ReadAsStringAsync();
+        await Assert.That(body.Contains("KebooWebProxy-Stopped!!")).IsTrue();
+    }
+
+
+    [Test]
+    public async Task Can_Intercept_Patch_Requests()
+    {
+        var testSuite = new TestSuite();
+
+        var server = testSuite.GetServer();
+        server.HandleRequest(context =>
+        {
+            return context.Response.WriteAsync("I am server. I received your greetings.");
+        });
+
+        var proxy = testSuite.GetProxy();
+        proxy.BeforeRequest += async (sender, e) =>
+        {
+            if (e.HttpClient.Request.Url.Contains("localhost"))
+            {
+                e.Ok("<html><body>KebooWebProxy-Stopped!!</body></html>");
+                return;
+            }
+
+            await Task.FromResult(0);
+        };
+
+        var client = testSuite.GetClient(proxy);
+
+        var response = await client.PatchAsync(new Uri(server.ListeningHttpUrl),
+            new StringContent("hello server. I am a client."));
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+        var body = await response.Content.ReadAsStringAsync();
+        await Assert.That(body.Contains("KebooWebProxy-Stopped!!")).IsTrue();
+    }
+
+    [Test]
+    public async Task Can_Intercept_Delete_Requests()
+    {
+        var testSuite = new TestSuite();
+
+        var server = testSuite.GetServer();
+        server.HandleRequest(context =>
+        {
+            return context.Response.WriteAsync("I am server. I received your greetings.");
+        });
+
+        var proxy = testSuite.GetProxy();
+        proxy.BeforeRequest += async (sender, e) =>
+        {
+            if (e.HttpClient.Request.Url.Contains("localhost"))
+            {
+                e.Ok("<html><body>KebooWebProxy-Stopped!!</body></html>");
+                return;
+            }
+
+            await Task.FromResult(0);
+        };
+
+        var client = testSuite.GetClient(proxy);
+
+        var response = await client.DeleteAsync(new Uri(server.ListeningHttpUrl));
+
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
+
+        var body = await response.Content.ReadAsStringAsync();
+        await Assert.That(body.Contains("KebooWebProxy-Stopped!!")).IsTrue();
+    }
+}

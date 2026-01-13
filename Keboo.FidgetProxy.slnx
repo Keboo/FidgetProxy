@@ -16,7 +16,7 @@
   </Folder>
   <Project Path="Keboo.FidgetProxy/Keboo.FidgetProxy.csproj" />
   <Project Path="Keboo.FidgetProxy.Tests/Keboo.FidgetProxy.Tests.csproj" />
-  <Project Path="Titanium.Web.Proxy.IntegrationTests/Titanium.Web.Proxy.IntegrationTests.csproj" />
-  <Project Path="Titanium.Web.Proxy.UnitTests/Titanium.Web.Proxy.UnitTests.csproj" />
-  <Project Path="Titanium.Web.Proxy/Titanium.Web.Proxy.csproj" />
+  <Project Path="Keboo.Web.Proxy.IntegrationTests/Keboo.Web.Proxy.IntegrationTests.csproj" />
+  <Project Path="Keboo.Web.Proxy.UnitTests/Keboo.Web.Proxy.UnitTests.csproj" />
+  <Project Path="Keboo.Web.Proxy/Keboo.Web.Proxy.csproj" />
 </Solution>
