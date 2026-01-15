@@ -21,7 +21,7 @@ public class ProxyServerManager : IDisposable
     public UrlFilterManager FilterManager => _filterManager;
     public ProcessFilterManager ProcessFilterManager => _processFilterManager;
 
-    public async Task StartAsync(string outputDirectory, int port = 8080)
+    public async Task StartAsync(string outputDirectory, int port = 8080, bool setAsSystemProxy = true)
     {
         if (_proxyServer != null)
         {
@@ -48,10 +48,13 @@ public class ProxyServerManager : IDisposable
             _proxyServer.AddEndPoint(explicitEndPoint);
 
             // Start the proxy
-            _proxyServer.Start(changeSystemProxySettings: true);
+            _proxyServer.Start(changeSystemProxySettings: setAsSystemProxy);
             
-            // Set as system proxy (for both HTTP and HTTPS)
-            _proxyServer.SetAsSystemProxy(explicitEndPoint, ProxyProtocolType.AllHttp);
+            // Set as system proxy (for both HTTP and HTTPS) - only on Windows if requested
+            if (setAsSystemProxy && OperatingSystem.IsWindows())
+            {
+                _proxyServer.SetAsSystemProxy(explicitEndPoint, ProxyProtocolType.AllHttp);
+            }
         }
 
         await Task.CompletedTask;
