@@ -12,8 +12,34 @@ defaults:
     shell: pwsh
 
 jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
+      - name: dotnet restore
+        run: dotnet restore
+
+      - name: dotnet build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run integration tests
+        run: |
+          cd Keboo.FidgetProxy.Tests
+          dotnet run --configuration Release --no-build
+
   build:
     runs-on: ubuntu-latest
+    needs: test
 
     steps:
       - uses: actions/checkout@v6
