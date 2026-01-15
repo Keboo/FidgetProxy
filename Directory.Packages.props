@@ -23,7 +23,7 @@
     <PackageVersion Include="BrotliSharpLib" Version="0.3.3" />
     <PackageVersion Include="Google.Protobuf" Version="3.29.3" />
     <PackageVersion Include="Grpc.AspNetCore" Version="2.70.0" />
-    <PackageVersion Include="Grpc.Tools" Version="2.70.0" />
+    <PackageVersion Include="Grpc.Tools" Version="2.76.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
