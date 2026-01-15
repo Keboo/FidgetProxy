@@ -18,13 +18,15 @@ public class ProgramTests
     }
 
     [Test]
-    public async Task Invoke_AddWithTwoNumbers_DisplaysResult()
+    public async Task Invoke_StartCommand_ShowsInHelp()
     {
         using StringWriter stdOut = new();
-        int exitCode = await Invoke("add 4 2", stdOut);
+        int exitCode = await Invoke("--help", stdOut);
 
         await Assert.That(exitCode).IsEqualTo(0);
-        await Assert.That(stdOut.ToString()).Contains("The result is 6");
+        await Assert.That(stdOut.ToString()).Contains("start");
+        await Assert.That(stdOut.ToString()).Contains("stop");
+        await Assert.That(stdOut.ToString()).Contains("clean");
     }
 
     private static Task<int> Invoke(string commandLine, StringWriter console)

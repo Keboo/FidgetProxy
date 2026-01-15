@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+option csharp_namespace = "Keboo.FidgetProxy";
+
+package proxycontrol;
+
+// Service for controlling the proxy server
+service ProxyControl {
+  // Get the current status of the proxy server
+  rpc GetStatus (GetStatusRequest) returns (GetStatusResponse);
+  
+  // Request the proxy server to shut down gracefully
+  rpc Shutdown (ShutdownRequest) returns (ShutdownResponse);
+}
+
+// Request message for GetStatus
+message GetStatusRequest {
+}
+
+// Response message for GetStatus
+message GetStatusResponse {
+  bool is_running = 1;
+  string message = 2;
+  int32 active_connections = 3;
+}
+
+// Request message for Shutdown
+message ShutdownRequest {
+}
+
+// Response message for Shutdown
+message ShutdownResponse {
+  bool success = 1;
+  string message = 2;
+}
