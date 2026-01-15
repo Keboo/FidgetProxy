@@ -44,9 +44,9 @@
     <PackageVersion Include="System.Memory" Version="4.5.5" />
     <PackageVersion Include="System.Security.Principal.Windows" Version="5.0.0" />
     <PackageVersion Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
-    <PackageVersion Include="TUnit" Version="1.9.91" />
-    <PackageVersion Include="TUnit.Assertions" Version="1.9.91" />
-    <PackageVersion Include="TUnit.Engine" Version="1.9.91" />
+    <PackageVersion Include="TUnit" Version="1.11.28" />
+    <PackageVersion Include="TUnit.Assertions" Version="1.11.28" />
+    <PackageVersion Include="TUnit.Engine" Version="1.11.28" />
     <PackageVersion Include="xunit.v3" Version="3.1.0" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
