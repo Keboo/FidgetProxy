@@ -102,13 +102,33 @@ public sealed class Program
         };
         outputDirOption.Aliases.Add("-o");
 
+        // Common option for URL exclusion patterns
+        Option<string[]?> excludeUrlsOption = new("--exclude-urls")
+        {
+            Description = "URL patterns to exclude from logging (supports wildcards: *, ?). Can be specified multiple times.",
+            AllowMultipleArgumentsPerToken = true
+        };
+        excludeUrlsOption.Aliases.Add("-e");
+
+        // Common option for process filtering
+        Option<string[]?> processFilterOption = new("--process")
+        {
+            Description = "Process names or PIDs to filter (supports wildcards: *, ?). Can be specified multiple times. If specified, ONLY these processes will be logged.",
+            AllowMultipleArgumentsPerToken = true
+        };
+        processFilterOption.Aliases.Add("-p");
+
         // Start command
         Command startCommand = new("start", "Start the proxy server in the background");
         startCommand.Options.Add(outputDirOption);
+        startCommand.Options.Add(excludeUrlsOption);
+        startCommand.Options.Add(processFilterOption);
         startCommand.SetAction(async (ParseResult parseResult, CancellationToken cancellationToken) =>
         {
             var outputDir = parseResult.GetValue(outputDirOption) ?? defaultOutputDir;
-            return await StartCommandAsync(outputDir, cancellationToken);
+            var excludeUrls = parseResult.GetValue(excludeUrlsOption);
+            var processFilters = parseResult.GetValue(processFilterOption);
+            return await StartCommandAsync(outputDir, excludeUrls, processFilters, cancellationToken);
         });
 
         // Stop command
@@ -129,10 +149,14 @@ public sealed class Program
         Command runCommand = new("run", "Run the proxy server (internal use)");
         runCommand.Hidden = true;
         runCommand.Options.Add(outputDirOption);
+        runCommand.Options.Add(excludeUrlsOption);
+        runCommand.Options.Add(processFilterOption);
         runCommand.SetAction(async (ParseResult parseResult, CancellationToken cancellationToken) =>
         {
             var outputDir = parseResult.GetValue(outputDirOption) ?? defaultOutputDir;
-            return await RunCommandAsync(outputDir, cancellationToken);
+            var excludeUrls = parseResult.GetValue(excludeUrlsOption);
+            var processFilters = parseResult.GetValue(processFilterOption);
+            return await RunCommandAsync(outputDir, excludeUrls, processFilters, cancellationToken);
         });
 
         rootCommand.Subcommands.Add(startCommand);
@@ -143,7 +167,7 @@ public sealed class Program
         return rootCommand;
     }
 
-    private static async Task<int> StartCommandAsync(string outputDirectory, CancellationToken cancellationToken)
+    private static async Task<int> StartCommandAsync(string outputDirectory, string[]? excludeUrlPatterns, string[]? processFilters, CancellationToken cancellationToken)
     {
         try
         {
@@ -169,10 +193,26 @@ public sealed class Program
             var stderrCapture = new System.Collections.Concurrent.ConcurrentQueue<string>();
 
             // Start a new process with the run command
+            var arguments = $"run --output-directory \"{outputDirectory}\"";
+            if (excludeUrlPatterns != null && excludeUrlPatterns.Length > 0)
+            {
+                foreach (var pattern in excludeUrlPatterns)
+                {
+                    arguments += $" --exclude-urls \"{pattern}\"";
+                }
+            }
+            if (processFilters != null && processFilters.Length > 0)
+            {
+                foreach (var filter in processFilters)
+                {
+                    arguments += $" --process \"{filter}\"";
+                }
+            }
+            
             var startInfo = new ProcessStartInfo
             {
                 FileName = exePath,
-                Arguments = $"run --output-directory \"{outputDirectory}\"",
+                Arguments = arguments,
                 UseShellExecute = false,
                 CreateNoWindow = true,
                 RedirectStandardOutput = true,
@@ -402,7 +442,7 @@ public sealed class Program
         }
     }
 
-    private static async Task<int> RunCommandAsync(string outputDirectory, CancellationToken cancellationToken)
+    private static async Task<int> RunCommandAsync(string outputDirectory, string[]? excludeUrlPatterns, string[]? processFilters, CancellationToken cancellationToken)
     {
         try
         {
@@ -464,6 +504,29 @@ public sealed class Program
 
             // Start the proxy server
             await proxyManager.StartAsync(outputDirectory);
+            
+            // Add URL filters if specified
+            if (excludeUrlPatterns != null && excludeUrlPatterns.Length > 0)
+            {
+                proxyManager.FilterManager.AddFilters(excludeUrlPatterns);
+                Console.WriteLine($"Applied {excludeUrlPatterns.Length} URL filter(s):");
+                foreach (var pattern in excludeUrlPatterns)
+                {
+                    Console.WriteLine($"  - {pattern}");
+                }
+            }
+            
+            // Add process filters if specified
+            if (processFilters != null && processFilters.Length > 0)
+            {
+                proxyManager.ProcessFilterManager.AddFilters(processFilters);
+                Console.WriteLine($"Applied {processFilters.Length} process filter(s):");
+                foreach (var filter in processFilters)
+                {
+                    Console.WriteLine($"  - {filter}");
+                }
+            }
+            
             Console.WriteLine($"Proxy server is running. Logs will be written to: {outputDirectory}");
             Console.WriteLine("Press Ctrl+C to stop...");
 

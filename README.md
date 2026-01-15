@@ -48,6 +48,86 @@ Or use the short form:
 fidgetproxy start -o C:\Logs\HttpTraffic
 ```
 
+### URL Filtering
+
+You can exclude specific URLs from being logged using wildcard patterns with the `--exclude-urls` option (or `-e` for short):
+
+```bash
+fidgetproxy start --exclude-urls "*.googleapis.com"
+```
+
+Add multiple filter patterns:
+
+```bash
+fidgetproxy start -e "*.googleapis.com" -e "*/analytics/*" -e "https://cdn.example.com/*"
+```
+
+**Wildcard Pattern Syntax:**
+- `*` - Matches any number of characters
+- `?` - Matches a single character
+- Patterns are case-insensitive
+
+**Common Filter Examples:**
+
+| Pattern | Description | Matches |
+|---------|-------------|---------|
+| `*.example.com` | All subdomains of example.com | `api.example.com`, `www.example.com` |
+| `*/api/*` | Any URL containing /api/ | `https://example.com/api/users` |
+| `https://cdn.*.com/*` | CDN resources | `https://cdn.cloudflare.com/script.js` |
+| `*.google.com/*` | All Google domains | `https://www.google.com/search` |
+| `*localhost*` | Local development | `http://localhost:3000/api` |
+| `*.jpg` | Image files | `https://example.com/photo.jpg` |
+| `*/telemetry/*` | Telemetry endpoints | Any URL with /telemetry/ path |
+
+Filtered URLs will not be logged to disk or displayed in the console, reducing noise and focusing on relevant traffic.
+
+### Process Filtering
+
+You can filter traffic to only log requests from specific processes using the `--process` option (or `-p` for short):
+
+```bash
+# Log only Chrome traffic
+fidgetproxy start --process "chrome"
+
+# Log only a specific process ID
+fidgetproxy start -p "1234"
+
+# Multiple processes
+fidgetproxy start -p "chrome" -p "firefox" -p "msedge"
+```
+
+**Wildcard Pattern Syntax:**
+- `*` - Matches any number of characters
+- `?` - Matches a single character
+- Patterns are case-insensitive
+- Can match by process name or PID
+
+**Process Filter Examples:**
+
+| Pattern | Description | Matches |
+|---------|-------------|---------|
+| `chrome` | Chrome browser | chrome.exe |
+| `chrome*` | Chrome and helpers | chrome.exe, chrome-helper.exe |
+| `*test*` | Any process with 'test' | mytest.exe, test-app.exe |
+| `1234` | Specific PID | Process with PID 1234 |
+| `powershell` | PowerShell | powershell.exe |
+
+**Important Notes:**
+- When process filters are specified, **ONLY** matching processes will be logged
+- Process filtering only works for local connections (not remote)
+- Process names can be specified with or without .exe extension
+- Combine with URL filtering for precise traffic capture
+
+**Example - Debug only your app:**
+```bash
+# Log only traffic from your application
+fidgetproxy start -p "myapp" -o "C:\Logs\MyApp"
+
+# Multiple apps
+fidgetproxy start -p "myapp*" -p "test-runner"
+```
+
+
 ### Stop the Proxy
 
 Stop the running proxy server:
@@ -107,6 +187,27 @@ Each file contains:
 - **GRPC Communication**: Named pipe-based GRPC for inter-process communication
 - **Process Tracking**: PID file mechanism to track running proxy instances
 - **Traffic Logger**: Asynchronous logging of all HTTP traffic to individual files
+- **URL Filtering**: Dynamic filter system with wildcard pattern matching to exclude unwanted traffic
+
+### URL Filter Management (Advanced)
+
+The proxy exposes gRPC methods for runtime filter management. While there's no built-in client, you can create your own using the proto file at `Protos/proxy_control.proto`.
+
+**Available gRPC Methods:**
+
+*URL Filtering:*
+- `AddFilter` - Add a new URL filter pattern
+- `RemoveFilter` - Remove an existing filter pattern
+- `ListFilters` - Get all active filter patterns
+- `ClearFilters` - Remove all filters
+
+*Process Filtering:*
+- `AddProcessFilter` - Add a new process filter pattern
+- `RemoveProcessFilter` - Remove an existing process filter
+- `ListProcessFilters` - Get all active process filters
+- `ClearProcessFilters` - Remove all process filters
+
+This allows dynamic filter adjustment without restarting the proxy.
 
 ## Requirements
 

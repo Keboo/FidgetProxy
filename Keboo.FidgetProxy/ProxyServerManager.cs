@@ -11,11 +11,15 @@ public class ProxyServerManager : IDisposable
 {
     private ProxyServer? _proxyServer;
     private HttpTrafficLogger? _logger;
+    private readonly UrlFilterManager _filterManager = new();
+    private readonly ProcessFilterManager _processFilterManager = new();
     private readonly object _lock = new();
     private bool _disposed = false;
 
     public bool IsRunning => _proxyServer?.ProxyRunning ?? false;
     public int ActiveConnections => _proxyServer?.ClientConnectionCount ?? 0;
+    public UrlFilterManager FilterManager => _filterManager;
+    public ProcessFilterManager ProcessFilterManager => _processFilterManager;
 
     public async Task StartAsync(string outputDirectory, int port = 8080)
     {
@@ -27,7 +31,7 @@ public class ProxyServerManager : IDisposable
         lock (_lock)
         {
             // Create the logger
-            _logger = new HttpTrafficLogger(outputDirectory);
+            _logger = new HttpTrafficLogger(outputDirectory, _processFilterManager);
 
             // Create and configure the proxy server
             _proxyServer = new ProxyServer(
@@ -84,13 +88,18 @@ public class ProxyServerManager : IDisposable
     {
         if (_logger != null)
         {
-            try
+            // Check if the URL should be filtered
+            var url = e.HttpClient.Request.Url;
+            if (!_filterManager.ShouldFilter(url))
             {
-                await _logger.LogRequestAsync(e);
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error logging request: {ex.Message}");
+                try
+                {
+                    await _logger.LogRequestAsync(e);
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"Error logging request: {ex.Message}");
+                }
             }
         }
     }
@@ -99,13 +108,18 @@ public class ProxyServerManager : IDisposable
     {
         if (_logger != null)
         {
-            try
+            // Check if the URL should be filtered
+            var url = e.HttpClient.Request.Url;
+            if (!_filterManager.ShouldFilter(url))
             {
-                await _logger.LogResponseAsync(e);
-            }
-            catch (Exception ex)
-            {
-                Console.Error.WriteLine($"Error logging response: {ex.Message}");
+                try
+                {
+                    await _logger.LogResponseAsync(e);
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"Error logging response: {ex.Message}");
+                }
             }
         }
     }

@@ -11,6 +11,30 @@ service ProxyControl {
   
   // Request the proxy server to shut down gracefully
   rpc Shutdown (ShutdownRequest) returns (ShutdownResponse);
+  
+  // Add a URL filter pattern
+  rpc AddFilter (AddFilterRequest) returns (AddFilterResponse);
+  
+  // Remove a URL filter pattern
+  rpc RemoveFilter (RemoveFilterRequest) returns (RemoveFilterResponse);
+  
+  // Get all active filter patterns
+  rpc ListFilters (ListFiltersRequest) returns (ListFiltersResponse);
+  
+  // Clear all filter patterns
+  rpc ClearFilters (ClearFiltersRequest) returns (ClearFiltersResponse);
+  
+  // Add a process filter pattern
+  rpc AddProcessFilter (AddProcessFilterRequest) returns (AddProcessFilterResponse);
+  
+  // Remove a process filter pattern
+  rpc RemoveProcessFilter (RemoveProcessFilterRequest) returns (RemoveProcessFilterResponse);
+  
+  // Get all active process filter patterns
+  rpc ListProcessFilters (ListProcessFiltersRequest) returns (ListProcessFiltersResponse);
+  
+  // Clear all process filter patterns
+  rpc ClearProcessFilters (ClearProcessFiltersRequest) returns (ClearProcessFiltersResponse);
 }
 
 // Request message for GetStatus
@@ -32,4 +56,88 @@ message ShutdownRequest {
 message ShutdownResponse {
   bool success = 1;
   string message = 2;
+}
+
+// Request message for AddFilter
+message AddFilterRequest {
+  string pattern = 1;
+}
+
+// Response message for AddFilter
+message AddFilterResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Request message for RemoveFilter
+message RemoveFilterRequest {
+  string pattern = 1;
+}
+
+// Response message for RemoveFilter
+message RemoveFilterResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Request message for ListFilters
+message ListFiltersRequest {
+}
+
+// Response message for ListFilters
+message ListFiltersResponse {
+  repeated string patterns = 1;
+}
+
+// Request message for ClearFilters
+message ClearFiltersRequest {
+}
+
+// Response message for ClearFilters
+message ClearFiltersResponse {
+  bool success = 1;
+  string message = 2;
+  int32 cleared_count = 3;
+}
+
+// Request message for AddProcessFilter
+message AddProcessFilterRequest {
+  string pattern = 1;
+}
+
+// Response message for AddProcessFilter
+message AddProcessFilterResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Request message for RemoveProcessFilter
+message RemoveProcessFilterRequest {
+  string pattern = 1;
+}
+
+// Response message for RemoveProcessFilter
+message RemoveProcessFilterResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Request message for ListProcessFilters
+message ListProcessFiltersRequest {
+}
+
+// Response message for ListProcessFilters
+message ListProcessFiltersResponse {
+  repeated string patterns = 1;
+}
+
+// Request message for ClearProcessFilters
+message ClearProcessFiltersRequest {
+}
+
+// Response message for ClearProcessFilters
+message ClearProcessFiltersResponse {
+  bool success = 1;
+  string message = 2;
+  int32 cleared_count = 3;
 }
