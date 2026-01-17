@@ -9,6 +9,9 @@ service ProxyControl {
   // Get the current status of the proxy server
   rpc GetStatus (GetStatusRequest) returns (GetStatusResponse);
   
+  // Get detailed proxy information including output directory
+  rpc GetProxyInfo (GetProxyInfoRequest) returns (GetProxyInfoResponse);
+  
   // Request the proxy server to shut down gracefully
   rpc Shutdown (ShutdownRequest) returns (ShutdownResponse);
   
@@ -46,6 +49,18 @@ message GetStatusResponse {
   bool is_running = 1;
   string message = 2;
   int32 active_connections = 3;
+}
+
+// Request message for GetProxyInfo
+message GetProxyInfoRequest {
+}
+
+// Response message for GetProxyInfo
+message GetProxyInfoResponse {
+  bool is_running = 1;
+  string output_directory = 2;
+  int32 trace_file_count = 3;
+  string system_proxy_address = 4;
 }
 
 // Request message for Shutdown

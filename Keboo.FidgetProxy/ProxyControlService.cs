@@ -30,6 +30,38 @@ public class ProxyControlService : ProxyControl.ProxyControlBase
         return Task.FromResult(response);
     }
 
+    public override Task<GetProxyInfoResponse> GetProxyInfo(GetProxyInfoRequest request, ServerCallContext context)
+    {
+        var response = new GetProxyInfoResponse
+        {
+            IsRunning = _proxyManager.IsRunning,
+            OutputDirectory = _proxyManager.OutputDirectory ?? string.Empty,
+            TraceFileCount = 0,
+            SystemProxyAddress = string.Empty
+        };
+
+        if (_proxyManager.IsRunning)
+        {
+            // Get trace file count
+            if (!string.IsNullOrEmpty(_proxyManager.OutputDirectory) && Directory.Exists(_proxyManager.OutputDirectory))
+            {
+                try
+                {
+                    response.TraceFileCount = Directory.GetFiles(_proxyManager.OutputDirectory, "*.txt").Length;
+                }
+                catch
+                {
+                    response.TraceFileCount = 0;
+                }
+            }
+
+            // Get system proxy address
+            response.SystemProxyAddress = $"http://localhost:{_proxyManager.Port}";
+        }
+
+        return Task.FromResult(response);
+    }
+
     public override async Task<ShutdownResponse> Shutdown(ShutdownRequest request, ServerCallContext context)
     {
         try

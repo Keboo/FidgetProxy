@@ -138,6 +138,13 @@ public sealed class Program
             return await StopCommandAsync(cancellationToken);
         });
 
+        // Status command
+        Command statusCommand = new("status", "Display current proxy status and configuration");
+        statusCommand.SetAction(async (ParseResult parseResult, CancellationToken cancellationToken) =>
+        {
+            return await StatusCommandAsync(cancellationToken);
+        });
+
         // Clean command
         Command cleanCommand = new("clean", "Terminate any stray processes and clean up system proxy settings");
         cleanCommand.SetAction((ParseResult parseResult) =>
@@ -161,6 +168,7 @@ public sealed class Program
 
         rootCommand.Subcommands.Add(startCommand);
         rootCommand.Subcommands.Add(stopCommand);
+        rootCommand.Subcommands.Add(statusCommand);
         rootCommand.Subcommands.Add(cleanCommand);
         rootCommand.Subcommands.Add(runCommand);
 
@@ -247,21 +255,7 @@ public sealed class Program
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
 
-            // Wait for the proxy to be ready by connecting to the GRPC server
-            var endpoint = GetIpcEndpoint();
-            var connectionFactory = new IpcConnectionFactory(endpoint);
-            var channel = GrpcChannel.ForAddress(
-                "http://localhost",
-                new GrpcChannelOptions
-                {
-                    HttpHandler = new SocketsHttpHandler
-                    {
-                        ConnectCallback = connectionFactory.ConnectAsync,
-                        EnableMultipleHttp2Connections = true
-                    }
-                });
-
-            var client = new ProxyControl.ProxyControlClient(channel);
+            var client = GetProxyClient();
 
             // Poll for ready state with timeout
             var timeout = TimeSpan.FromSeconds(30);
@@ -355,6 +349,46 @@ public sealed class Program
         }
     }
 
+    private static async Task<int> StatusCommandAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            // Check if proxy is running
+            if (!ProcessTracker.IsProxyRunning())
+            {
+                Console.WriteLine("Proxy Status: Not running");
+                return 0;
+            }
+
+            var client = GetProxyClient();
+
+            // Get detailed proxy information
+            var response = await client.GetProxyInfoAsync(
+                new GetProxyInfoRequest(),
+                deadline: DateTime.UtcNow.AddSeconds(5),
+                cancellationToken: cancellationToken);
+
+            Console.WriteLine("Proxy Status: Running");
+            Console.WriteLine($"System Proxy Address: {response.SystemProxyAddress}");
+            Console.WriteLine($"Output Directory: {response.OutputDirectory}");
+            Console.WriteLine($"Trace Files: {response.TraceFileCount}");
+
+            return 0;
+        }
+        catch (RpcException ex)
+        {
+            Console.Error.WriteLine($"Failed to connect to proxy server: {ex.Status.Detail}");
+            Console.WriteLine("Proxy Status: Unknown (could not connect)");
+            return 1;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error getting proxy status: {ex.Message}");
+            return 1;
+        }
+    }
+
+
     private static async Task<int> StopCommandAsync(CancellationToken cancellationToken)
     {
         try
@@ -368,21 +402,7 @@ public sealed class Program
                 return 1;
             }
 
-            // Connect to the GRPC server
-            var endpoint = GetIpcEndpoint();
-            var connectionFactory = new IpcConnectionFactory(endpoint);
-            var channel = GrpcChannel.ForAddress(
-                "http://localhost",
-                new GrpcChannelOptions
-                {
-                    HttpHandler = new SocketsHttpHandler
-                    {
-                        ConnectCallback = connectionFactory.ConnectAsync,
-                        EnableMultipleHttp2Connections = true
-                    }
-                });
-
-            var client = new ProxyControl.ProxyControlClient(channel);
+            var client = GetProxyClient();
 
             // Send shutdown command
             var response = await client.ShutdownAsync(
@@ -559,5 +579,25 @@ public sealed class Program
             ProcessTracker.RemovePidFile();
             return 1;
         }
+    }
+
+    private static ProxyControl.ProxyControlClient GetProxyClient()
+    {
+        // Wait for the proxy to be ready by connecting to the GRPC server
+        var endpoint = GetIpcEndpoint();
+        var connectionFactory = new IpcConnectionFactory(endpoint);
+        var channel = GrpcChannel.ForAddress(
+            "http://localhost",
+            new GrpcChannelOptions
+            {
+                HttpHandler = new SocketsHttpHandler
+                {
+                    ConnectCallback = connectionFactory.ConnectAsync,
+                    EnableMultipleHttp2Connections = true
+                }
+            });
+
+        var client = new ProxyControl.ProxyControlClient(channel);
+        return client;
     }
 }

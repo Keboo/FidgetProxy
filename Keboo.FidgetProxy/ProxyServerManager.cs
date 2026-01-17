@@ -15,11 +15,15 @@ public class ProxyServerManager : IDisposable
     private readonly ProcessFilterManager _processFilterManager = new();
     private readonly object _lock = new();
     private bool _disposed = false;
+    private string? _outputDirectory;
+    private int _port = 8080;
 
     public bool IsRunning => _proxyServer?.ProxyRunning ?? false;
     public int ActiveConnections => _proxyServer?.ClientConnectionCount ?? 0;
     public UrlFilterManager FilterManager => _filterManager;
     public ProcessFilterManager ProcessFilterManager => _processFilterManager;
+    public string? OutputDirectory => _outputDirectory;
+    public int Port => _port;
 
     public async Task StartAsync(string outputDirectory, int port = 8080, bool setAsSystemProxy = true)
     {
@@ -27,6 +31,9 @@ public class ProxyServerManager : IDisposable
         {
             throw new InvalidOperationException("Proxy server is already running");
         }
+
+        _outputDirectory = outputDirectory;
+        _port = port;
 
         lock (_lock)
         {
@@ -82,6 +89,7 @@ public class ProxyServerManager : IDisposable
             }
 
             _logger = null;
+            _outputDirectory = null;
         }
 
         await Task.CompletedTask;
