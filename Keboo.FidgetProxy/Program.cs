@@ -171,6 +171,8 @@ public sealed class Program
     {
         try
         {
+            Console.WriteLine("Starting FidgetProxy...");
+
             // Check if proxy is already running
             if (ProcessTracker.IsProxyRunning())
             {
@@ -220,7 +222,7 @@ public sealed class Program
             };
 
             var process = Process.Start(startInfo);
-            if (process == null)
+            if (process is null)
             {
                 Console.Error.WriteLine("Failed to start proxy process");
                 return 1;
@@ -245,9 +247,6 @@ public sealed class Program
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
 
-            // Give the process a moment to initialize
-            await Task.Delay(1000);
-
             // Wait for the proxy to be ready by connecting to the GRPC server
             var endpoint = GetIpcEndpoint();
             var connectionFactory = new IpcConnectionFactory(endpoint);
@@ -257,7 +256,8 @@ public sealed class Program
                 {
                     HttpHandler = new SocketsHttpHandler
                     {
-                        ConnectCallback = connectionFactory.ConnectAsync
+                        ConnectCallback = connectionFactory.ConnectAsync,
+                        EnableMultipleHttp2Connections = true
                     }
                 });
 
@@ -288,6 +288,7 @@ public sealed class Program
                     if (response.IsRunning)
                     {
                         Console.WriteLine("Proxy server started successfully");
+                        Console.WriteLine($"Traces will be written to: {outputDirectory}");
                         Console.WriteLine();
                         Console.WriteLine("Note: Most applications will automatically detect the proxy change.");
                         Console.WriteLine("      If an application doesn't pick up the proxy, try restarting it.");
@@ -358,6 +359,8 @@ public sealed class Program
     {
         try
         {
+            Console.WriteLine("Stopping FidgetProxy...");
+
             // Check if proxy is running
             if (!ProcessTracker.IsProxyRunning())
             {
@@ -374,7 +377,8 @@ public sealed class Program
                 {
                     HttpHandler = new SocketsHttpHandler
                     {
-                        ConnectCallback = connectionFactory.ConnectAsync
+                        ConnectCallback = connectionFactory.ConnectAsync,
+                        EnableMultipleHttp2Connections = true
                     }
                 });
 
@@ -446,6 +450,7 @@ public sealed class Program
     {
         try
         {
+            Console.WriteLine("Running Fidget Proxy...");
             // Check if already running
             if (ProcessTracker.IsProxyRunning())
             {
@@ -476,6 +481,7 @@ public sealed class Program
             
             // Configure Kestrel to listen on platform-specific IPC endpoint
             var endpoint = GetIpcEndpoint();
+            Console.WriteLine($"Listening for GRPC connections on endpoint: {endpoint}");
             builder.WebHost.ConfigureKestrel(options =>
             {
                 if (OperatingSystem.IsWindows())
@@ -505,6 +511,8 @@ public sealed class Program
             // Start the proxy server
             await proxyManager.StartAsync(outputDirectory);
             
+            Console.WriteLine("GRPc server started successfully.");
+
             // Add URL filters if specified
             if (excludeUrlPatterns != null && excludeUrlPatterns.Length > 0)
             {

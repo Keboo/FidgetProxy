@@ -1,26 +1,24 @@
 using System.Diagnostics;
 using System.Net;
-using System.Net.Http;
-using TUnit.Assertions;
-using TUnit.Assertions.Extensions;
-using TUnit.Core;
 
 namespace Keboo.FidgetProxy.Tests;
 
 /// <summary>
 /// Integration tests for FidgetProxy that verify end-to-end functionality
 /// </summary>
-public class IntegrationTests : IDisposable
+public class IntegrationTests
 {
     private string? _testOutputDirectory;
-    private ProxyServerManager? _proxyManager;
+    private ProxyServerManager _proxyManager = null!;
 
     [Before(Test)]
     public void Setup()
     {
         // Create a unique temp directory for each test
-        _testOutputDirectory = Path.Combine(Path.GetTempPath(), "fidgetproxy-test-" + Guid.NewGuid().ToString("N"));
+        _testOutputDirectory = Path.Combine(Path.GetTempPath(), "fidget-proxy-test-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_testOutputDirectory);
+
+        _proxyManager = new ProxyServerManager();
     }
 
     [After(Test)]
@@ -31,7 +29,7 @@ public class IntegrationTests : IDisposable
         {
             await _proxyManager.StopAsync();
             _proxyManager.Dispose();
-            _proxyManager = null;
+            _proxyManager = null!;
         }
 
         // Clean up test output directory
@@ -52,7 +50,6 @@ public class IntegrationTests : IDisposable
     public async Task ProxyCanStartAndStop()
     {
         // Arrange
-        _proxyManager = new ProxyServerManager();
 
         // Act - Start the proxy (don't set as system proxy for tests)
         await _proxyManager.StartAsync(_testOutputDirectory!, setAsSystemProxy: false);
@@ -71,7 +68,6 @@ public class IntegrationTests : IDisposable
     public async Task ProxyWritesRequestAndResponseFiles()
     {
         // Arrange
-        _proxyManager = new ProxyServerManager();
         await _proxyManager.StartAsync(_testOutputDirectory!, port: 8081, setAsSystemProxy: false);
 
         // Wait for proxy to be fully started
@@ -144,7 +140,6 @@ public class IntegrationTests : IDisposable
     public async Task UrlFilterExcludesMatchingUrls()
     {
         // Arrange
-        _proxyManager = new ProxyServerManager();
         await _proxyManager.StartAsync(_testOutputDirectory!, port: 8082, setAsSystemProxy: false);
 
         // Add URL filter to exclude example.com
@@ -205,7 +200,6 @@ public class IntegrationTests : IDisposable
     public async Task ProcessFilterIncludesOnlyMatchingProcesses()
     {
         // Arrange
-        _proxyManager = new ProxyServerManager();
         
         // Get current process name
         var currentProcess = Process.GetCurrentProcess();
@@ -308,7 +302,6 @@ public class IntegrationTests : IDisposable
     public async Task MultipleFiltersWorkTogether()
     {
         // Arrange
-        _proxyManager = new ProxyServerManager();
         
         // Add multiple URL filters
         _proxyManager.FilterManager.AddFilter("*.googleapis.com");
@@ -345,19 +338,5 @@ public class IntegrationTests : IDisposable
         await Assert.That(_proxyManager.FilterManager.ShouldFilter("https://cdn.cloudflare.com")).IsTrue();
         await Assert.That(_proxyManager.FilterManager.ShouldFilter("https://example.com/analytics/track")).IsTrue();
         await Assert.That(_proxyManager.FilterManager.ShouldFilter("https://httpbin.org/get")).IsFalse();
-    }
-
-    public void Dispose()
-    {
-        // Synchronously cleanup - this is acceptable for test cleanup
-        // as we're not in a synchronization context that would cause deadlocks
-        try
-        {
-            Cleanup().GetAwaiter().GetResult();
-        }
-        catch
-        {
-            // Best effort cleanup during disposal
-        }
     }
 }

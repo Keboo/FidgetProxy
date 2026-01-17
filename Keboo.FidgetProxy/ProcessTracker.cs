@@ -13,6 +13,7 @@ public class ProcessTracker
 
     public static void WritePidFile()
     {
+        Console.WriteLine($"Writing PID file to {PidFilePath}");
         var pid = Environment.ProcessId;
         File.WriteAllText(PidFilePath, pid.ToString());
     }
