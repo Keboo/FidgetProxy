@@ -1114,7 +1114,7 @@ internal class HttpStream : Stream, IHttpStreamWriter, IHttpStreamReader, IPeekS
                 var bytesToRead = buffer.Length;
                 if (remainingBytes < bytesToRead) bytesToRead = (int)remainingBytes;
 
-                var bytesRead = await ReadAsync.ReadAsync(buffer.AsMemory(0, bytesToRead), cancellationToken);
+                var bytesRead = await ReadAsync(buffer.AsMemory(0, bytesToRead), cancellationToken);
                 if (bytesRead == 0) break;
 
                 remainingBytes -= bytesRead;

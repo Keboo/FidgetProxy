@@ -13,7 +13,7 @@ namespace Keboo.Web.Proxy.IntegrationTests;
 public class HttpsTests
 {
     [Test]
-    public static async Task Can_Handle_Https_Request()
+    public async Task Can_Handle_Https_Request()
     {
         var testSuite = new TestSuite();
 
@@ -36,7 +36,7 @@ public class HttpsTests
     }
 
     [Test]
-    public static async Task Can_Handle_Https_Fake_Tunnel_Request()
+    public async Task Can_Handle_Https_Fake_Tunnel_Request()
     {
         var testSuite = new TestSuite();
 
@@ -65,7 +65,7 @@ public class HttpsTests
     }
 
     [Test]
-    public static async Task Can_Handle_Https_Mutual_Tls_Request()
+    public async Task Can_Handle_Https_Mutual_Tls_Request()
     {
         var testSuite = new TestSuite(true);
 

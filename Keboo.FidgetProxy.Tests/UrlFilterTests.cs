@@ -7,7 +7,7 @@ namespace Keboo.FidgetProxy.Tests;
 public class UrlFilterTests
 {
     [Test]
-    public static async Task UrlFilter_ExactMatch()
+    public async Task UrlFilter_ExactMatch()
     {
         var filter = new UrlFilter("https://example.com/api");
         
@@ -16,7 +16,7 @@ public class UrlFilterTests
     }
 
     [Test]
-    public static async Task UrlFilter_WildcardStar()
+    public async Task UrlFilter_WildcardStar()
     {
         var filter = new UrlFilter("*.example.com");
         
@@ -27,7 +27,7 @@ public class UrlFilterTests
     }
 
     [Test]
-    public static async Task UrlFilter_WildcardInPath()
+    public async Task UrlFilter_WildcardInPath()
     {
         var filter = new UrlFilter("*/api/*");
         
@@ -37,7 +37,7 @@ public class UrlFilterTests
     }
 
     [Test]
-    public static async Task UrlFilter_QuestionMark()
+    public async Task UrlFilter_QuestionMark()
     {
         var filter = new UrlFilter("https://example.com/user?");
         
@@ -47,7 +47,7 @@ public class UrlFilterTests
     }
 
     [Test]
-    public static async Task UrlFilter_CaseInsensitive()
+    public async Task UrlFilter_CaseInsensitive()
     {
         var filter = new UrlFilter("https://EXAMPLE.com/*");
         
@@ -59,7 +59,7 @@ public class UrlFilterTests
 public class UrlFilterManagerTests
 {
     [Test]
-    public static async Task AddFilter_AddsFilter()
+    public async Task AddFilter_AddsFilter()
     {
         var manager = new UrlFilterManager();
         
@@ -70,7 +70,7 @@ public class UrlFilterManagerTests
     }
 
     [Test]
-    public static async Task AddFilter_DuplicateReturnsFalse()
+    public async Task AddFilter_DuplicateReturnsFalse()
     {
         var manager = new UrlFilterManager();
         
@@ -82,7 +82,7 @@ public class UrlFilterManagerTests
     }
 
     [Test]
-    public static async Task RemoveFilter_RemovesFilter()
+    public async Task RemoveFilter_RemovesFilter()
     {
         var manager = new UrlFilterManager();
         manager.AddFilter("*.example.com");
@@ -94,7 +94,7 @@ public class UrlFilterManagerTests
     }
 
     [Test]
-    public static async Task ShouldFilter_MatchesPattern()
+    public async Task ShouldFilter_MatchesPattern()
     {
         var manager = new UrlFilterManager();
         manager.AddFilter("*.example.com");
@@ -106,7 +106,7 @@ public class UrlFilterManagerTests
     }
 
     [Test]
-    public static async Task AddFilters_AddsMultiple()
+    public async Task AddFilters_AddsMultiple()
     {
         var manager = new UrlFilterManager();
         var patterns = new[] { "*.example.com", "*/api/*", "https://test.com/*" };
@@ -118,7 +118,7 @@ public class UrlFilterManagerTests
     }
 
     [Test]
-    public static async Task ClearFilters_RemovesAll()
+    public async Task ClearFilters_RemovesAll()
     {
         var manager = new UrlFilterManager();
         manager.AddFilter("*.example.com");
@@ -130,7 +130,7 @@ public class UrlFilterManagerTests
     }
 
     [Test]
-    public static async Task GetFilters_ReturnsAllPatterns()
+    public async Task GetFilters_ReturnsAllPatterns()
     {
         var manager = new UrlFilterManager();
         manager.AddFilter("*.example.com");

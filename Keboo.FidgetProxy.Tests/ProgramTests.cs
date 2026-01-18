@@ -8,7 +8,7 @@ namespace Keboo.FidgetProxy.Tests;
 public class ProgramTests
 {
     [Test]
-    public static async Task Invoke_WithHelpOption_DisplaysHelp()
+    public async Task Invoke_WithHelpOption_DisplaysHelp()
     {
         using StringWriter stdOut = new();
         int exitCode = await Invoke("--help", stdOut);
@@ -18,7 +18,7 @@ public class ProgramTests
     }
 
     [Test]
-    public static async Task Invoke_StartCommand_ShowsInHelp()
+    public async Task Invoke_StartCommand_ShowsInHelp()
     {
         using StringWriter stdOut = new();
         int exitCode = await Invoke("--help", stdOut);

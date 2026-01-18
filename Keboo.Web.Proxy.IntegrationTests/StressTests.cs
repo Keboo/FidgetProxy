@@ -14,7 +14,7 @@ public class StressTests
 {
     [Test]
     [Timeout(2 * 60 * 1000)]
-    public static async Task Stress_Test_With_One_Server_And_Many_Clients(CancellationToken cancellationToken)
+    public async Task Stress_Test_With_One_Server_And_Many_Clients(CancellationToken cancellationToken)
     {
         var testSuite = new TestSuite();
 

@@ -15,7 +15,7 @@ namespace Keboo.Web.Proxy.IntegrationTests;
 public class ReverseProxyTests
 {
     [Test]
-    public static async Task Smoke_Test_Http_To_Http_Reverse_Proxy()
+    public async Task Smoke_Test_Http_To_Http_Reverse_Proxy()
     {
         var testSuite = new TestSuite();
 
@@ -44,7 +44,7 @@ public class ReverseProxyTests
     }
 
     [Test]
-    public static async Task Smoke_Test_Https_To_Http_Reverse_Proxy()
+    public async Task Smoke_Test_Https_To_Http_Reverse_Proxy()
     {
         var testSuite = new TestSuite();
 
@@ -73,7 +73,7 @@ public class ReverseProxyTests
     }
 
     [Test]
-    public static async Task Smoke_Test_Http_To_Https_Reverse_Proxy()
+    public async Task Smoke_Test_Http_To_Https_Reverse_Proxy()
     {
         var testSuite = new TestSuite();
 
@@ -102,7 +102,7 @@ public class ReverseProxyTests
     }
 
     [Test]
-    public static async Task Smoke_Test_Https_To_Https_Reverse_Proxy()
+    public async Task Smoke_Test_Https_To_Https_Reverse_Proxy()
     {
         var testSuite = new TestSuite();
 
@@ -131,7 +131,7 @@ public class ReverseProxyTests
     }
 
     [Test]
-    public static async Task Smoke_Test_Https_To_Https_Reverse_Proxy_Tunnel_Without_Decryption()
+    public async Task Smoke_Test_Https_To_Https_Reverse_Proxy_Tunnel_Without_Decryption()
     {
         var testSuite = new TestSuite();
 

@@ -193,7 +193,7 @@ internal class LimitedStream : Stream
             var buffer = bufferPool.GetBuffer();
             try
             {
-                var res = await ReadAsync.ReadAsync(buffer);
+                var res = await ReadAsync(buffer, 0, buffer.Length);
                 if (res != 0) throw new Exception("Data received after stream end");
             }
             finally

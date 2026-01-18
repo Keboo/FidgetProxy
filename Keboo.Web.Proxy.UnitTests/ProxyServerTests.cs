@@ -10,7 +10,7 @@ namespace Keboo.Web.Proxy.UnitTests
     public class ProxyServerTests
     {
         [Test]
-        public static async Task
+        public async Task
             GivenOneEndpointIsAlreadyAddedToAddress_WhenAddingNewEndpointToExistingAddress_ThenExceptionIsThrown()
         {
             // Arrange
@@ -32,7 +32,7 @@ namespace Keboo.Web.Proxy.UnitTests
         }
 
         [Test]
-        public static async Task
+        public async Task
             GivenOneEndpointIsAlreadyAddedToAddress_WhenAddingNewEndpointToExistingAddress_ThenTwoEndpointsExists()
         {
             // Arrange
@@ -50,7 +50,7 @@ namespace Keboo.Web.Proxy.UnitTests
         }
 
         [Test]
-        public static async Task GivenOneEndpointIsAlreadyAddedToPort_WhenAddingNewEndpointToExistingPort_ThenExceptionIsThrown()
+        public async Task GivenOneEndpointIsAlreadyAddedToPort_WhenAddingNewEndpointToExistingPort_ThenExceptionIsThrown()
         {
             // Arrange
             var proxy = new ProxyServer();
@@ -69,7 +69,7 @@ namespace Keboo.Web.Proxy.UnitTests
         }
 
         [Test]
-        public static async Task
+        public async Task
             GivenOneEndpointIsAlreadyAddedToZeroPort_WhenAddingNewEndpointToExistingPort_ThenTwoEndpointsExists()
         {
             // Arrange

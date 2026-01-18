@@ -14,7 +14,7 @@ namespace Keboo.Web.Proxy.IntegrationTests;
 public class ExpectContinueTests
 {
     [Test]
-    public static async Task ReverseProxy_GotContinueAndOkResponse()
+    public async Task ReverseProxy_GotContinueAndOkResponse()
     {
         var testSuite = new TestSuite();
         var server = testSuite.GetServer();
@@ -41,7 +41,7 @@ public class ExpectContinueTests
     }
 
     [Test]
-    public static async Task ReverseProxy_GotExpectationFailedResponse()
+    public async Task ReverseProxy_GotExpectationFailedResponse()
     {
         var testSuite = new TestSuite();
         var server = testSuite.GetServer();
@@ -64,7 +64,7 @@ public class ExpectContinueTests
     }
 
     [Test]
-    public static async Task ReverseProxy_GotNotFoundResponse()
+    public async Task ReverseProxy_GotNotFoundResponse()
     {
         var testSuite = new TestSuite();
         var server = testSuite.GetServer();
@@ -87,7 +87,7 @@ public class ExpectContinueTests
     }
 
     [Test]
-    public static async Task ReverseProxy_BeforeRequestThrows()
+    public async Task ReverseProxy_BeforeRequestThrows()
     {
         var testSuite = new TestSuite();
         var server = testSuite.GetServer();

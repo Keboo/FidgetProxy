@@ -17,7 +17,7 @@ namespace Keboo.Web.Proxy.UnitTests
 
 
         [Test]
-        public static async Task Simple_BC_Create_Certificate_Test()
+        public async Task Simple_BC_Create_Certificate_Test()
         {
             var tasks = new List<Task>();
 
@@ -74,7 +74,7 @@ namespace Keboo.Web.Proxy.UnitTests
         }
 
         [Test]
-        public static async Task Create_Server_Certificate_Test()
+        public async Task Create_Server_Certificate_Test()
         {
             var tasks = new List<Task>();
 

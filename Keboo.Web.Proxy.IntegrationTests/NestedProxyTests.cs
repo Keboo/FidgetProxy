@@ -15,7 +15,7 @@ namespace Keboo.Web.Proxy.IntegrationTests;
 public class NestedProxyTests
 {
     [Test]
-    public static async Task Smoke_Test_Nested_Proxy()
+    public async Task Smoke_Test_Nested_Proxy()
     {
         var testSuite = new TestSuite();
 
@@ -40,7 +40,7 @@ public class NestedProxyTests
     }
 
     [Test]
-    public static async Task Smoke_Test_Nested_Proxy_UserData()
+    public async Task Smoke_Test_Nested_Proxy_UserData()
     {
         var testSuite = new TestSuite();
 
@@ -79,7 +79,7 @@ public class NestedProxyTests
 
     [Test]
     [Timeout(2 * 60 * 1000)]
-    public static async Task Nested_Proxy_Farm_Without_Connection_Cache_Should_Not_Hang(CancellationToken cancellationToken)
+    public async Task Nested_Proxy_Farm_Without_Connection_Cache_Should_Not_Hang(CancellationToken cancellationToken)
     {
         var rnd = new Random();
 
@@ -164,7 +164,7 @@ public class NestedProxyTests
     //https://github.com/justcoding121/titanium-web-proxy/issues/826
     [Test]
     [Timeout(2 * 60 * 1000)]
-    public static async Task Nested_Proxy_Farm_With_Connection_Cache_Should_Not_Hang(CancellationToken cancellationToken)
+    public async Task Nested_Proxy_Farm_With_Connection_Cache_Should_Not_Hang(CancellationToken cancellationToken)
     {
         var rnd = new Random();
 

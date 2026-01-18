@@ -13,7 +13,7 @@ namespace Keboo.Web.Proxy.IntegrationTests;
 public class InterceptionTests
 {
     [Test]
-    public static async Task Can_Intercept_Get_Requests()
+    public async Task Can_Intercept_Get_Requests()
     {
         var testSuite = new TestSuite();
 
@@ -50,7 +50,7 @@ public class InterceptionTests
     }
 
     [Test]
-    public static async Task Can_Intercept_Post_Requests()
+    public async Task Can_Intercept_Post_Requests()
     {
         var testSuite = new TestSuite();
 
@@ -84,7 +84,7 @@ public class InterceptionTests
     }
 
     [Test]
-    public static async Task Can_Intercept_Put_Requests()
+    public async Task Can_Intercept_Put_Requests()
     {
         var testSuite = new TestSuite();
 
@@ -119,7 +119,7 @@ public class InterceptionTests
 
 
     [Test]
-    public static async Task Can_Intercept_Patch_Requests()
+    public async Task Can_Intercept_Patch_Requests()
     {
         var testSuite = new TestSuite();
 
@@ -153,7 +153,7 @@ public class InterceptionTests
     }
 
     [Test]
-    public static async Task Can_Intercept_Delete_Requests()
+    public async Task Can_Intercept_Delete_Requests()
     {
         var testSuite = new TestSuite();
 

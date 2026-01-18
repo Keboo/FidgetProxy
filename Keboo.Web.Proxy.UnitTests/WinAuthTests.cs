@@ -9,7 +9,7 @@ namespace Keboo.Web.Proxy.UnitTests
     public class WinAuthTests
     {
         [Test]
-        public static async Task Test_Acquire_Client_Token()
+        public async Task Test_Acquire_Client_Token()
         {
             var token = WinAuthHandler.GetInitialAuthToken("mylocalserver.com", "NTLM", new InternalDataStore());
             await Assert.That(token.Length).IsGreaterThan(1);
