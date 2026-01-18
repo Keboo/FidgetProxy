@@ -15,6 +15,8 @@ public static class TestHelper
         { 
             Proxy = proxy, 
             UseProxy = true,
+            // Accept self-signed certificates generated for testing. This is safe in integration tests
+            // where we control both the client and server, but should not be used in production code.
             ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
         };
 
@@ -25,6 +27,8 @@ public static class TestHelper
     {
         var handler = new HttpClientHandler
         {
+            // Accept self-signed certificates generated for testing. This is safe in integration tests
+            // where we control both the client and server, but should not be used in production code.
             ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
         };
         return new HttpClient(handler);
