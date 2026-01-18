@@ -16,7 +16,7 @@ public class ProxyServerManager : IDisposable
     private readonly object _lock = new();
     private bool _disposed = false;
     private string? _outputDirectory;
-    private int _port = 8080;
+    private int _port;
 
     public bool IsRunning => _proxyServer?.ProxyRunning ?? false;
     public int ActiveConnections => _proxyServer?.ClientConnectionCount ?? 0;
@@ -82,7 +82,20 @@ public class ProxyServerManager : IDisposable
                 _proxyServer.BeforeRequest -= OnBeforeRequest;
                 _proxyServer.BeforeResponse -= OnBeforeResponse;
 
-                // Stop the proxy (this will restore system proxy settings)
+                // Explicitly restore system proxy settings before stopping
+                if (OperatingSystem.IsWindows())
+                {
+                    try
+                    {
+                        _proxyServer.RestoreOriginalProxySettings();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"Warning: Failed to restore system proxy settings: {ex.Message}");
+                    }
+                }
+
+                // Stop the proxy
                 _proxyServer.Stop();
                 _proxyServer.Dispose();
                 _proxyServer = null;

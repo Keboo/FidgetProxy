@@ -107,7 +107,7 @@ namespace Keboo.Web.Proxy.UnitTests
             await CompareProxy(webProxy, resolver, "https://test.local");
         }
 
-        private async Task CompareProxy(IWebProxy webProxy, WinHttpWebProxyFinder resolver, string url)
+        private static async Task CompareProxy(IWebProxy webProxy, WinHttpWebProxyFinder resolver, string url)
         {
             var uri = new Uri(url);
 

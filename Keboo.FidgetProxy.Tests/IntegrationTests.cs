@@ -250,7 +250,7 @@ public class IntegrationTests
     }
 
     [Test]
-    public async Task UrlFilterManagerAddsAndRemovesFilters()
+    public static async Task UrlFilterManagerAddsAndRemovesFilters()
     {
         // Arrange
         var filterManager = new UrlFilterManager();
@@ -274,7 +274,7 @@ public class IntegrationTests
     }
 
     [Test]
-    public async Task ProcessFilterManagerAddsAndRemovesFilters()
+    public static async Task ProcessFilterManagerAddsAndRemovesFilters()
     {
         // Arrange
         var filterManager = new ProcessFilterManager();

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
@@ -128,7 +128,7 @@ public class TestServer : IDisposable
             });
         }
 
-        public void ConfigureServices(IServiceCollection services)
+        public static void ConfigureServices(IServiceCollection services)
         {
         }
     }

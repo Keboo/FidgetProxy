@@ -231,7 +231,7 @@ public class Request : RequestResponseBase
         // break up the line into three components (method, remote URL & Http Version)
 
         // Find the request Verb
-        method = httpCmd.Substring(0, firstSpace);
+        method = httpCmd[..firstSpace];
         if (!IsAllUpper(method)) method = method.ToUpper();
 
         version = HttpHeader.Version11;

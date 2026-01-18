@@ -153,7 +153,7 @@ internal class BcCertificateMakerFast : ICertificateMaker
         return x509Certificate;
     }
 
-    public AsymmetricCipherKeyPair GenerateKeyPair(int keyStrength = 2048)
+    public static AsymmetricCipherKeyPair GenerateKeyPair(int keyStrength = 2048)
     {
         var randomGenerator = new CryptoApiRandomGenerator();
         var secureRandom = new SecureRandom(randomGenerator);

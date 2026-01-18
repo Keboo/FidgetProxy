@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using Keboo.Web.Proxy.IntegrationTests.Helpers;
 using Keboo.Web.Proxy.IntegrationTests.Setup;
 
@@ -20,7 +20,7 @@ public class TestSuite
         return server;
     }
 
-    public ProxyServer GetProxy(ProxyServer upStreamProxy = null)
+    public static ProxyServer GetProxy(ProxyServer upStreamProxy = null)
     {
         if (upStreamProxy != null)
         {
@@ -30,7 +30,7 @@ public class TestSuite
         return new TestProxyServer(false).ProxyServer;
     }
 
-    public ProxyServer GetReverseProxy(ProxyServer upStreamProxy = null)
+    public static ProxyServer GetReverseProxy(ProxyServer upStreamProxy = null)
     {
         if (upStreamProxy != null)
         {
@@ -40,12 +40,12 @@ public class TestSuite
         return new TestProxyServer(true).ProxyServer;
     }
 
-    public HttpClient GetClient(ProxyServer proxyServer, bool enableBasicProxyAuthorization = false)
+    public static HttpClient GetClient(ProxyServer proxyServer, bool enableBasicProxyAuthorization = false)
     {
         return TestHelper.GetHttpClient(proxyServer.ProxyEndPoints[0].Port, enableBasicProxyAuthorization);
     }
 
-    public HttpClient GetReverseProxyClient()
+    public static HttpClient GetReverseProxyClient()
     {
         return TestHelper.GetHttpClient();
     }

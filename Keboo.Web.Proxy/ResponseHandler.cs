@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Threading.Tasks;
+
 using Keboo.Web.Proxy.EventArguments;
 using Keboo.Web.Proxy.Extensions;
 using Keboo.Web.Proxy.Network.WinAuth.Security;
@@ -134,22 +135,22 @@ public partial class ProxyServer
         if (AfterResponse != null) await AfterResponse.InvokeAsync(this, args, ExceptionFunc);
     }
 #if DEBUG
-        internal bool ShouldCallBeforeResponseBodyWrite()
+    internal bool ShouldCallBeforeResponseBodyWrite()
+    {
+        if (OnResponseBodyWrite != null)
         {
-            if (OnResponseBodyWrite != null)
-            {
-                return true;
-            }
-
-            return false;
+            return true;
         }
 
-        internal async Task OnBeforeResponseBodyWrite(BeforeBodyWriteEventArgs args)
+        return false;
+    }
+
+    internal async Task OnBeforeResponseBodyWrite(BeforeBodyWriteEventArgs args)
+    {
+        if (OnResponseBodyWrite != null)
         {
-            if (OnResponseBodyWrite != null)
-            {
-                await OnResponseBodyWrite.InvokeAsync(this, args, ExceptionFunc);
-            }
+            await OnResponseBodyWrite.InvokeAsync(this, args, ExceptionFunc);
         }
+    }
 #endif
 }

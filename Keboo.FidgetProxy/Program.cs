@@ -322,7 +322,7 @@ public sealed class Program
         System.Collections.Concurrent.ConcurrentQueue<string> stdout,
         System.Collections.Concurrent.ConcurrentQueue<string> stderr)
     {
-        if (stdout.Count > 0 || stderr.Count > 0)
+        if (!stdout.IsEmpty || !stderr.IsEmpty)
         {
             Console.Error.WriteLine();
             Console.Error.WriteLine("=== Output from proxy process ===");

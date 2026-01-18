@@ -42,11 +42,11 @@ internal static class StringExtensions
         {
             Utf8Formatter.TryFormat(b, buf2, out _, new StandardFormat('X', 2));
             buf2[2] = 32; // space
-            buf2 = buf2.Slice(3);
+            buf2 = buf2[3..];
         }
 
 #if NET6_0_OR_GREATER
-        return Encoding.UTF8.GetString(buf.Slice(0, length - 1));
+        return Encoding.UTF8.GetString(buf[..(length - 1)]);
 #else
         fixed (byte* bp = buf)
         {

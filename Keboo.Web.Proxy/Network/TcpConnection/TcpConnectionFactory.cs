@@ -51,7 +51,7 @@ internal class TcpConnectionFactory : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    internal string GetConnectionCacheKey(string remoteHostName, int remotePort,
+    internal static string GetConnectionCacheKey(string remoteHostName, int remotePort,
         bool isHttps, List<SslApplicationProtocol>? applicationProtocols,
         IPEndPoint? upStreamEndPoint, IExternalProxy? externalProxy)
     {
@@ -194,8 +194,8 @@ internal class TcpConnectionFactory : IDisposable
             }
             else
             {
-                host = authority.Slice(0, idx).GetString();
-                port = int.Parse(authority.Slice(idx + 1).GetString());
+                host = authority[..idx].GetString();
+                port = int.Parse(authority[(idx + 1)..].GetString());
             }
         }
         else

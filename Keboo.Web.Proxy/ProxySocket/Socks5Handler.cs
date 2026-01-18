@@ -141,8 +141,7 @@ internal sealed class Socks5Handler : SocksHandler
     /// <exception cref="ArgumentException"><c>port</c> or <c>host</c> is invalid.</exception>
     private int GetHostPortBytes(string host, int port, Memory<byte> buffer)
     {
-        if (host == null)
-            throw new ArgumentNullException();
+        ArgumentNullException.ThrowIfNull(host);
 
         if (port <= 0 || port > 65535 || host.Length > 255)
             throw new ArgumentException();
@@ -157,8 +156,8 @@ internal sealed class Socks5Handler : SocksHandler
         connect[2] = 0; // reserved
         connect[3] = 3;
         connect[4] = (byte)host.Length;
-        Encoding.ASCII.GetBytes(host).CopyTo(connect.Slice(5));
-        PortToBytes(port, connect.Slice(host.Length + 5));
+        Encoding.ASCII.GetBytes(host).CopyTo(connect[5..]);
+        PortToBytes(port, connect[(host.Length + 5)..]);
         return length;
     }
 
@@ -171,8 +170,7 @@ internal sealed class Socks5Handler : SocksHandler
     /// <exception cref="ArgumentNullException"><c>remoteEP</c> is null.</exception>
     private int GetEndPointBytes(IPEndPoint remoteEp, Memory<byte> buffer)
     {
-        if (remoteEp == null)
-            throw new ArgumentNullException();
+        ArgumentNullException.ThrowIfNull(remoteEp);
 
         if (buffer.Length < 10)
             throw new ArgumentException(nameof(buffer));
@@ -182,8 +180,8 @@ internal sealed class Socks5Handler : SocksHandler
         connect[1] = 1;
         connect[2] = 0; // reserved
         connect[3] = 1;
-        remoteEp.Address.GetAddressBytes().CopyTo(connect.Slice(4));
-        PortToBytes(remoteEp.Port, connect.Slice(8));
+        remoteEp.Address.GetAddressBytes().CopyTo(connect[4..]);
+        PortToBytes(remoteEp.Port, connect[8..]);
         return 10;
     }
 

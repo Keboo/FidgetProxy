@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -15,7 +15,7 @@ namespace Keboo.Web.Proxy.IntegrationTests;
 public class NestedProxyTests
 {
     [Test]
-    public async Task Smoke_Test_Nested_Proxy()
+    public static async Task Smoke_Test_Nested_Proxy()
     {
         var testSuite = new TestSuite();
 
@@ -25,10 +25,10 @@ public class NestedProxyTests
             return context.Response.WriteAsync("I am server. I received your greetings.");
         });
 
-        var proxy1 = testSuite.GetProxy();
-        var proxy2 = testSuite.GetProxy(proxy1);
+        var proxy1 = TestSuite.GetProxy();
+        var proxy2 = TestSuite.GetProxy(proxy1);
 
-        var client = testSuite.GetClient(proxy2);
+        var client = TestSuite.GetClient(proxy2);
 
         var response = await client.PostAsync(new Uri(server.ListeningHttpsUrl),
             new StringContent("hello server. I am a client."));
@@ -40,7 +40,7 @@ public class NestedProxyTests
     }
 
     [Test]
-    public async Task Smoke_Test_Nested_Proxy_UserData()
+    public static async Task Smoke_Test_Nested_Proxy_UserData()
     {
         var testSuite = new TestSuite();
 
@@ -50,14 +50,14 @@ public class NestedProxyTests
             return context.Response.WriteAsync("I am server. I received your greetings.");
         });
 
-        var proxy1 = testSuite.GetProxy();
+        var proxy1 = TestSuite.GetProxy();
         proxy1.ProxyBasicAuthenticateFunc = async (session, username, password) =>
         {
             session.UserData = "Test";
             return await Task.FromResult(true);
         };
 
-        var proxy2 = testSuite.GetProxy();
+        var proxy2 = TestSuite.GetProxy();
 
         proxy1.GetCustomUpStreamProxyFunc = async session =>
         {
@@ -66,7 +66,7 @@ public class NestedProxyTests
             return await Task.FromResult(new ExternalProxy("localhost", proxy2.ProxyEndPoints[0].Port));
         };
 
-        var client = testSuite.GetClient(proxy1, true);
+        var client = TestSuite.GetClient(proxy1, true);
 
         var response = await client.PostAsync(new Uri(server.ListeningHttpsUrl),
             new StringContent("hello server. I am a client."));
@@ -79,7 +79,7 @@ public class NestedProxyTests
 
     [Test]
     [Timeout(2 * 60 * 1000)]
-    public async Task Nested_Proxy_Farm_Without_Connection_Cache_Should_Not_Hang(CancellationToken cancellationToken)
+    public static async Task Nested_Proxy_Farm_Without_Connection_Cache_Should_Not_Hang(CancellationToken cancellationToken)
     {
         var rnd = new Random();
 
@@ -96,7 +96,7 @@ public class NestedProxyTests
         //create a level 2 upstream proxy farm that forwards to server
         for (var i = 0; i < 10; i++)
         {
-            var proxy2 = testSuite.GetProxy();
+            var proxy2 = TestSuite.GetProxy();
             proxy2.ProxyBasicAuthenticateFunc += (_, _, _) =>
             {
                 return Task.FromResult(true);
@@ -110,7 +110,7 @@ public class NestedProxyTests
         //create a level 1 upstream proxy farm that forwards to level 2 farm
         for (var i = 0; i < 10; i++)
         {
-            var proxy1 = testSuite.GetProxy();
+            var proxy1 = TestSuite.GetProxy();
             proxy1.EnableConnectionPool = false;
             var proxy2 = proxies2[rnd.Next() % proxies2.Count];
 
@@ -141,7 +141,7 @@ public class NestedProxyTests
                 try
                 {
                     var proxy = proxies1[rnd.Next() % proxies1.Count];
-                    using var client = testSuite.GetClient(proxy);
+                    using var client = TestSuite.GetClient(proxy);
 
                     //tests should not keep hanging for 30 mins.
                     client.Timeout = TimeSpan.FromMinutes(30);
@@ -164,7 +164,7 @@ public class NestedProxyTests
     //https://github.com/justcoding121/titanium-web-proxy/issues/826
     [Test]
     [Timeout(2 * 60 * 1000)]
-    public async Task Nested_Proxy_Farm_With_Connection_Cache_Should_Not_Hang(CancellationToken cancellationToken)
+    public static async Task Nested_Proxy_Farm_With_Connection_Cache_Should_Not_Hang(CancellationToken cancellationToken)
     {
         var rnd = new Random();
 
@@ -181,7 +181,7 @@ public class NestedProxyTests
         //create a level 2 upstream proxy farm that forwards to server
         for (var i = 0; i < 10; i++)
         {
-            var proxy2 = testSuite.GetProxy();
+            var proxy2 = TestSuite.GetProxy();
             proxy2.ProxyBasicAuthenticateFunc += (_, _, _) =>
             {
                 return Task.FromResult(true);
@@ -194,7 +194,7 @@ public class NestedProxyTests
         //create a level 1 upstream proxy farm that forwards to level 2 farm
         for (var i = 0; i < 10; i++)
         {
-            var proxy1 = testSuite.GetProxy();
+            var proxy1 = TestSuite.GetProxy();
             var proxy2 = proxies2[rnd.Next() % proxies2.Count];
 
             proxy1.GetCustomUpStreamProxyFunc += async _ =>
@@ -224,7 +224,7 @@ public class NestedProxyTests
                 try
                 {
                     var proxy = proxies1[rnd.Next() % proxies1.Count];
-                    using var client = testSuite.GetClient(proxy);
+                    using var client = TestSuite.GetClient(proxy);
 
                     //tests should not keep hanging for 30 mins.
                     client.Timeout = TimeSpan.FromMinutes(30);

@@ -160,7 +160,7 @@ public class HttpTrafficLogger
         // Limit length to avoid excessively long filenames
         if (sanitized.Length > 50)
         {
-            sanitized = sanitized.Substring(0, 50);
+            sanitized = sanitized[..50];
         }
         
         return sanitized;

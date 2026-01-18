@@ -61,7 +61,7 @@ public class ProcessFilter
         {
             // Remove .exe extension if present for matching
             var nameWithoutExtension = processName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
-                ? processName.Substring(0, processName.Length - 4)
+                ? processName[..^4]
                 : processName;
             
             return _nameRegex.IsMatch(processName) || _nameRegex.IsMatch(nameWithoutExtension);

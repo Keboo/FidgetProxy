@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -15,7 +15,7 @@ namespace Keboo.Web.Proxy.IntegrationTests;
 public class ReverseProxyTests
 {
     [Test]
-    public async Task Smoke_Test_Http_To_Http_Reverse_Proxy()
+    public static async Task Smoke_Test_Http_To_Http_Reverse_Proxy()
     {
         var testSuite = new TestSuite();
 
@@ -25,14 +25,14 @@ public class ReverseProxyTests
             return context.Response.WriteAsync("I am server. I received your greetings.");
         });
 
-        var proxy = testSuite.GetReverseProxy();
+        var proxy = TestSuite.GetReverseProxy();
         proxy.BeforeRequest += async (sender, e) =>
         {
             e.HttpClient.Request.Url = server.ListeningHttpUrl;
             await Task.FromResult(0);
         };
 
-        var client = testSuite.GetReverseProxyClient();
+        var client = TestSuite.GetReverseProxyClient();
 
         var response = await client.PostAsync(new Uri($"http://localhost:{proxy.ProxyEndPoints[0].Port}"),
             new StringContent("hello server. I am a client."));
@@ -44,7 +44,7 @@ public class ReverseProxyTests
     }
 
     [Test]
-    public async Task Smoke_Test_Https_To_Http_Reverse_Proxy()
+    public static async Task Smoke_Test_Https_To_Http_Reverse_Proxy()
     {
         var testSuite = new TestSuite();
 
@@ -54,14 +54,14 @@ public class ReverseProxyTests
             return context.Response.WriteAsync("I am server. I received your greetings.");
         });
 
-        var proxy = testSuite.GetReverseProxy();
+        var proxy = TestSuite.GetReverseProxy();
         proxy.BeforeRequest += async (sender, e) =>
         {
             e.HttpClient.Request.Url = server.ListeningHttpUrl;
             await Task.FromResult(0);
         };
 
-        var client = testSuite.GetReverseProxyClient();
+        var client = TestSuite.GetReverseProxyClient();
 
         var response = await client.PostAsync(new Uri($"https://localhost:{proxy.ProxyEndPoints[0].Port}"),
             new StringContent("hello server. I am a client."));
@@ -73,7 +73,7 @@ public class ReverseProxyTests
     }
 
     [Test]
-    public async Task Smoke_Test_Http_To_Https_Reverse_Proxy()
+    public static async Task Smoke_Test_Http_To_Https_Reverse_Proxy()
     {
         var testSuite = new TestSuite();
 
@@ -83,14 +83,14 @@ public class ReverseProxyTests
             return context.Response.WriteAsync("I am server. I received your greetings.");
         });
 
-        var proxy = testSuite.GetReverseProxy();
+        var proxy = TestSuite.GetReverseProxy();
         proxy.BeforeRequest += async (sender, e) =>
         {
             e.HttpClient.Request.Url = server.ListeningHttpsUrl;
             await Task.FromResult(0);
         };
 
-        var client = testSuite.GetReverseProxyClient();
+        var client = TestSuite.GetReverseProxyClient();
 
         var response = await client.PostAsync(new Uri($"http://localhost:{proxy.ProxyEndPoints[0].Port}"),
             new StringContent("hello server. I am a client."));
@@ -102,7 +102,7 @@ public class ReverseProxyTests
     }
 
     [Test]
-    public async Task Smoke_Test_Https_To_Https_Reverse_Proxy()
+    public static async Task Smoke_Test_Https_To_Https_Reverse_Proxy()
     {
         var testSuite = new TestSuite();
 
@@ -112,14 +112,14 @@ public class ReverseProxyTests
             return context.Response.WriteAsync("I am server. I received your greetings.");
         });
 
-        var proxy = testSuite.GetReverseProxy();
+        var proxy = TestSuite.GetReverseProxy();
         proxy.BeforeRequest += async (sender, e) =>
         {
             e.HttpClient.Request.Url = server.ListeningHttpsUrl;
             await Task.FromResult(0);
         };
 
-        var client = testSuite.GetReverseProxyClient();
+        var client = TestSuite.GetReverseProxyClient();
 
         var response = await client.PostAsync(new Uri($"https://localhost:{proxy.ProxyEndPoints[0].Port}"),
             new StringContent("hello server. I am a client."));
@@ -131,7 +131,7 @@ public class ReverseProxyTests
     }
 
     [Test]
-    public async Task Smoke_Test_Https_To_Https_Reverse_Proxy_Tunnel_Without_Decryption()
+    public static async Task Smoke_Test_Https_To_Https_Reverse_Proxy_Tunnel_Without_Decryption()
     {
         var testSuite = new TestSuite();
 
@@ -141,7 +141,7 @@ public class ReverseProxyTests
             return context.Response.WriteAsync("I am server. I received your greetings.");
         });
 
-        var proxy = testSuite.GetReverseProxy();
+        var proxy = TestSuite.GetReverseProxy();
         var endpoint =
             proxy.ProxyEndPoints.Where(x => x is TransparentProxyEndPoint).First() as TransparentProxyEndPoint;
 
@@ -151,7 +151,7 @@ public class ReverseProxyTests
             e.ForwardHttpsPort = server.HttpsListeningPort;
         };
 
-        var client = testSuite.GetReverseProxyClient();
+        var client = TestSuite.GetReverseProxyClient();
 
         var response = await client.PostAsync(new Uri($"https://localhost:{proxy.ProxyEndPoints[0].Port}"),
             new StringContent("hello server. I am a client."));

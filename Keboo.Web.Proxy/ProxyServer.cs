@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
-using System.Threading.Tasks;
+
 using Keboo.Web.Proxy.EventArguments;
 using Keboo.Web.Proxy.Extensions;
 using Keboo.Web.Proxy.Helpers;
@@ -95,7 +91,7 @@ public partial class ProxyServer : IDisposable
         bool trustRootCertificateAsAdmin = false)
     {
         BufferPool = new DefaultBufferPool();
-        ProxyEndPoints = new List<ProxyEndPoint>();
+        ProxyEndPoints = [];
         TcpConnectionFactory = new TcpConnectionFactory(this);
         if (RunTime.IsWindows && !RunTime.IsUwpOnWindows) SystemProxySettingsManager = new SystemProxyManager();
 
@@ -132,7 +128,7 @@ public partial class ProxyServer : IDisposable
     /// <summary>
     ///     If set, the upstream proxy will be detected by a script that will be loaded from the provided Uri
     /// </summary>
-    public Uri UpstreamProxyConfigurationScript { get; set; }
+    public Uri? UpstreamProxyConfigurationScript { get; set; }
 
     /// <summary>
     ///     Enable disable Windows Authentication (NTLM/Kerberos).
@@ -323,7 +319,7 @@ public partial class ProxyServer : IDisposable
     ///     Parameters are username and password as provided by client.
     ///     Should return true for successful authentication.
     /// </summary>
-    public Func<SessionEventArgsBase, string, string, Task<bool>>? ProxyBasicAuthenticateFunc { get; set; }
+    public Func<SessionEventArgsBase?, string, string, Task<bool>>? ProxyBasicAuthenticateFunc { get; set; }
 
     /// <summary>
     ///     A pluggable callback to authenticate clients by scheme instead of requiring basic authentication through
@@ -342,7 +338,7 @@ public partial class ProxyServer : IDisposable
     ///     required.
     ///     Works in relation with ProxySchemeAuthenticateFunc.
     /// </summary>
-    public IEnumerable<string> ProxyAuthenticationSchemes { get; set; } = new string[0];
+    public IEnumerable<string> ProxyAuthenticationSchemes { get; set; } = [];
 
     /// <summary>
     ///     Event occurs when client connection count changed.
@@ -405,11 +401,6 @@ public partial class ProxyServer : IDisposable
     ///     Intercept connect request sent to upstream proxy.
     /// </summary>
     public event AsyncEventHandler<ConnectRequest>? BeforeUpStreamConnectRequest;
-
-    /// <summary>
-    ///     Customize the minimum ThreadPool size (increase it on a server)
-    /// </summary>
-    public int ThreadPoolWorkerThread { get; set; } = Environment.ProcessorCount;
 
     /// <summary>
     ///     Add a proxy end point.
@@ -556,7 +547,7 @@ public partial class ProxyServer : IDisposable
     /// </summary>
     public void DisableSystemProxy(ProxyProtocolType protocolType)
     {
-        if (SystemProxySettingsManager == null)
+        if (SystemProxySettingsManager is null)
             throw new NotSupportedException(@"Setting system proxy settings are only supported in Windows.
                             Please manually configure your operating system to use this proxy's port and address.");
 
@@ -568,7 +559,7 @@ public partial class ProxyServer : IDisposable
     /// </summary>
     public void DisableAllSystemProxies()
     {
-        if (SystemProxySettingsManager == null)
+        if (SystemProxySettingsManager is null)
             throw new NotSupportedException(@"Setting system proxy settings are only supported in Windows.
                             Please manually confugure you operating system to use this proxy's port and address.");
 
@@ -585,8 +576,6 @@ public partial class ProxyServer : IDisposable
     public void Start(bool changeSystemProxySettings = true)
     {
         if (ProxyRunning) throw new Exception("Proxy is already running.");
-
-        SetThreadPoolMinThread(ThreadPoolWorkerThread);
 
         if (ProxyEndPoints.OfType<ExplicitProxyEndPoint>().Any(x => x.GenericCertificate == null))
             CertificateManager.EnsureRootCertificate();
@@ -689,7 +678,7 @@ public partial class ProxyServer : IDisposable
     /// <param name="endPoint">The end point to validate.</param>
     private void ValidateEndPointAsSystemProxy(ExplicitProxyEndPoint endPoint)
     {
-        if (endPoint == null) throw new ArgumentNullException(nameof(endPoint));
+        ArgumentNullException.ThrowIfNull(endPoint);
 
         if (!ProxyEndPoints.Contains(endPoint))
             throw new Exception("Cannot set endPoints not added to proxy as system proxy");
@@ -713,7 +702,7 @@ public partial class ProxyServer : IDisposable
     /// </summary>
     private void OnAcceptConnection(IAsyncResult asyn)
     {
-        var endPoint = (ProxyEndPoint)asyn.AsyncState;
+        var endPoint = (ProxyEndPoint)asyn.AsyncState!;
 
         Socket? tcpClient = null;
 
@@ -736,7 +725,7 @@ public partial class ProxyServer : IDisposable
         }
 
         if (tcpClient != null)
-            Task.Run(async () => { await HandleClient(tcpClient, endPoint); });
+            Task.Run(async () => await HandleClient(tcpClient, endPoint));
 
         try
         {
@@ -751,22 +740,6 @@ public partial class ProxyServer : IDisposable
             // so just return.
         }
     }
-
-
-    /// <summary>
-    ///     Change the ThreadPool.WorkerThread minThread
-    /// </summary>
-    /// <param name="workerThreads">minimum Threads allocated in the ThreadPool</param>
-    private void SetThreadPoolMinThread(int workerThreads)
-    {
-        ThreadPool.GetMinThreads(out var minWorkerThreads, out var minCompletionPortThreads);
-        ThreadPool.GetMaxThreads(out var maxWorkerThreads, out _);
-
-        minWorkerThreads = Math.Min(maxWorkerThreads, Math.Max(workerThreads, Environment.ProcessorCount));
-
-        ThreadPool.SetMinThreads(minWorkerThreads, minCompletionPortThreads);
-    }
-
 
     /// <summary>
     ///     Handle the client.
@@ -783,14 +756,12 @@ public partial class ProxyServer : IDisposable
 
         await InvokeClientConnectionCreateEvent(tcpClientSocket);
 
-        using (var clientConnection = new TcpClientConnection(this, tcpClientSocket))
-        {
-            if (endPoint is ExplicitProxyEndPoint eep)
-                await HandleClient(eep, clientConnection);
-            else if (endPoint is TransparentProxyEndPoint tep)
-                await HandleClient(tep, clientConnection);
-            else if (endPoint is SocksProxyEndPoint sep) await HandleClient(sep, clientConnection);
-        }
+        using var clientConnection = new TcpClientConnection(this, tcpClientSocket);
+        if (endPoint is ExplicitProxyEndPoint eep)
+            await HandleClient(eep, clientConnection);
+        else if (endPoint is TransparentProxyEndPoint tep)
+            await HandleClient(tep, clientConnection);
+        else if (endPoint is SocksProxyEndPoint sep) await HandleClient(sep, clientConnection);
     }
 
     /// <summary>
@@ -806,7 +777,7 @@ public partial class ProxyServer : IDisposable
     /// <summary>
     ///     Quit listening on the given end point.
     /// </summary>
-    private void QuitListen(ProxyEndPoint endPoint)
+    private static void QuitListen(ProxyEndPoint endPoint)
     {
         endPoint.Listener!.Stop();
         endPoint.Listener.Server.Dispose();

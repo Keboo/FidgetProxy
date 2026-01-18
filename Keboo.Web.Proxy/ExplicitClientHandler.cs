@@ -1,12 +1,9 @@
-using System;
-using System.IO;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
-using System.Threading.Tasks;
+
 using Keboo.Web.Proxy.EventArguments;
 using Keboo.Web.Proxy.Exceptions;
 using Keboo.Web.Proxy.Extensions;
@@ -16,6 +13,7 @@ using Keboo.Web.Proxy.Http2;
 using Keboo.Web.Proxy.Models;
 using Keboo.Web.Proxy.Network.Tcp;
 using Keboo.Web.Proxy.StreamExtended;
+
 using SslExtensions = Keboo.Web.Proxy.Extensions.SslExtensions;
 
 namespace Keboo.Web.Proxy;
@@ -168,8 +166,8 @@ public partial class ProxyServer
                             CancellationToken.None);
 
                     var connectHostname = requestLine.RequestUri.GetString();
-                    var idx = connectHostname.IndexOf(":");
-                    if (idx >= 0) connectHostname = connectHostname.Substring(0, idx);
+                    var idx = connectHostname.IndexOf(':');
+                    if (idx >= 0) connectHostname = connectHostname[..idx];
 
                     X509Certificate2? certificate = null;
                     SslStream? sslStream = null;
@@ -266,7 +264,7 @@ public partial class ProxyServer
                                 try
                                 {
                                     // clientStream.Available should be at most BufferSize because it is using the same buffer size
-                                    var read = await clientStream.ReadAsync(data, 0, available, cancellationToken);
+                                    var read = await clientStream.ReadAsync(data.AsMemory(0, available), cancellationToken);
                                     if (read != available) throw new Exception("Internal error.");
 
                                     await connection.Stream.WriteAsync(data, 0, available, true, cancellationToken);
@@ -329,8 +327,8 @@ public partial class ProxyServer
                                 {
                                     UserData = connectArgs?.UserData
                                 },
-                                async args => { await OnBeforeRequest(args); },
-                                async args => { await OnBeforeResponse(args); },
+                                async args => await OnBeforeRequest(args),
+                                async args => await OnBeforeResponse(args),
                                 connectArgs.CancellationTokenSource, clientStream.Connection.Id, ExceptionFunc);
 #endif
                     }

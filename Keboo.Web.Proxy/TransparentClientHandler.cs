@@ -1,11 +1,8 @@
-using System;
-using System.IO;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
-using System.Threading.Tasks;
+
 using Keboo.Web.Proxy.EventArguments;
 using Keboo.Web.Proxy.Exceptions;
 using Keboo.Web.Proxy.Extensions;
@@ -116,7 +113,7 @@ public partial class ProxyServer
                             try
                             {
                                 // clientStream.Available should be at most BufferSize because it is using the same buffer size
-                                await clientStream.ReadAsync(data, 0, available, cancellationToken);
+                                await clientStream.ReadExactlyAsync(data.AsMemory(0, available), cancellationToken);
                                 await connection.Stream.WriteAsync(data, 0, available, true, cancellationToken);
                             }
                             finally

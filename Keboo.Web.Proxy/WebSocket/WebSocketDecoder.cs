@@ -72,7 +72,7 @@ public class WebSocketDecoder
                 var size1 = size;
                 if (size > 4)
                 {
-                    uData = uData.Slice(1);
+                    uData = uData[1..];
                     for (var i = 0; i < uData.Length; i++) uData[i] = uData[i] ^ mask;
 
                     size1 -= uData.Length * 4;
@@ -93,7 +93,7 @@ public class WebSocketDecoder
             var frame = new WebSocketFrame { IsFinal = isFinal, Data = frameData, OpCode = opCode };
             yield return frame;
 
-            buffer = buffer.Slice((int)(idx + size));
+            buffer = buffer[(int)(idx + size)..];
         }
 
         if (!copied && buffer.Length > 0) CopyToBuffer(buffer);

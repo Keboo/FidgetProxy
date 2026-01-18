@@ -215,7 +215,7 @@ internal class HttpStream : Stream, IHttpStreamWriter, IHttpStreamReader, IPeekS
     {
         if (Available > 0)
         {
-            await destination.WriteAsync(streamBuffer, bufferPos, Available, cancellationToken);
+            await destination.WriteAsync(streamBuffer.AsMemory(bufferPos, Available), cancellationToken);
 
             Available = 0;
         }
@@ -442,7 +442,7 @@ internal class HttpStream : Stream, IHttpStreamWriter, IHttpStreamReader, IPeekS
 
         try
         {
-            await BaseStream.WriteAsync(buffer, offset, count, cancellationToken);
+            await BaseStream.WriteAsync(buffer.AsMemory(offset, count), cancellationToken);
         }
         catch
         {
@@ -819,7 +819,7 @@ internal class HttpStream : Stream, IHttpStreamWriter, IHttpStreamReader, IPeekS
                     idx += newLineChars;
                 }
 
-                await BaseStream.WriteAsync(buffer, 0, idx, cancellationToken);
+                await BaseStream.WriteAsync(buffer.AsMemory(0, idx), cancellationToken);
             }
             catch
             {
@@ -844,7 +844,7 @@ internal class HttpStream : Stream, IHttpStreamWriter, IHttpStreamReader, IPeekS
 
             try
             {
-                await BaseStream.WriteAsync(buffer, 0, idx, cancellationToken);
+                await BaseStream.WriteAsync(buffer.AsMemory(0, idx), cancellationToken);
             }
             catch
             {
@@ -897,7 +897,7 @@ internal class HttpStream : Stream, IHttpStreamWriter, IHttpStreamReader, IPeekS
 
         try
         {
-            await BaseStream.WriteAsync(data, 0, data.Length, cancellationToken);
+            await BaseStream.WriteAsync(data, cancellationToken);
             if (flush) await BaseStream.FlushAsync(cancellationToken);
         }
         catch
@@ -915,7 +915,7 @@ internal class HttpStream : Stream, IHttpStreamWriter, IHttpStreamReader, IPeekS
 
         try
         {
-            await BaseStream.WriteAsync(data, offset, count, cancellationToken);
+            await BaseStream.WriteAsync(data.AsMemory(offset, count), cancellationToken);
             if (flush) await BaseStream.FlushAsync(cancellationToken);
         }
         catch
@@ -1016,7 +1016,7 @@ internal class HttpStream : Stream, IHttpStreamWriter, IHttpStreamReader, IPeekS
         return CopyBytesToStream(writer, contentLength, isRequest, args, cancellationToken);
     }
 
-    private Task HandleBodyWrite(IHttpStreamWriter writer, bool isChunked, long contentLength,
+    private static Task HandleBodyWrite(IHttpStreamWriter writer, bool isChunked, long contentLength,
         bool isRequest, SessionEventArgs args, CancellationToken cancellationToken)
     {
         var originalContentLength = isRequest
@@ -1074,7 +1074,7 @@ internal class HttpStream : Stream, IHttpStreamWriter, IHttpStreamReader, IPeekS
             if (chunkHead == null) return;
 
             var idx = chunkHead.IndexOf(";", StringComparison.Ordinal);
-            if (idx >= 0) chunkHead = chunkHead.Substring(0, idx);
+            if (idx >= 0) chunkHead = chunkHead[..idx];
 
             if (!int.TryParse(chunkHead, NumberStyles.HexNumber, null, out var chunkSize))
                 throw new ProxyHttpException($"Invalid chunk length: '{chunkHead}'", null, null);
@@ -1114,7 +1114,7 @@ internal class HttpStream : Stream, IHttpStreamWriter, IHttpStreamReader, IPeekS
                 var bytesToRead = buffer.Length;
                 if (remainingBytes < bytesToRead) bytesToRead = (int)remainingBytes;
 
-                var bytesRead = await ReadAsync(buffer, 0, bytesToRead, cancellationToken);
+                var bytesRead = await ReadAsync.ReadAsync(buffer.AsMemory(0, bytesToRead), cancellationToken);
                 if (bytesRead == 0) break;
 
                 remainingBytes -= bytesRead;

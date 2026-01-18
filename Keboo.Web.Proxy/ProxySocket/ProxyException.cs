@@ -28,8 +28,6 @@
   OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-using System;
-
 namespace Keboo.Web.Proxy.ProxySocket;
 
 /// <summary>

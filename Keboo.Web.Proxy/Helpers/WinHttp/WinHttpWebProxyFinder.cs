@@ -150,7 +150,7 @@ internal sealed class WinHttpWebProxyFinder : IDisposable
         Proxy = new WebProxy(new Uri("http://localhost"), BypassOnLocal);
     }
 
-    private ProxyInfo GetProxyInfo()
+    private static ProxyInfo GetProxyInfo()
     {
         var proxyConfig = new NativeMethods.WinHttp.WinhttpCurrentUserIeProxyConfig();
         try

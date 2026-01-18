@@ -95,9 +95,9 @@ internal sealed class AuthUserPass : AuthMethod
         var span = buffer.Span;
         span[0] = 1;
         span[1] = (byte)Username.Length;
-        Encoding.ASCII.GetBytes(Username).CopyTo(span.Slice(2));
+        Encoding.ASCII.GetBytes(Username).CopyTo(span[2..]);
         span[Username.Length + 2] = (byte)Password.Length;
-        Encoding.ASCII.GetBytes(Password).CopyTo(span.Slice(Username.Length + 3));
+        Encoding.ASCII.GetBytes(Password).CopyTo(span[(Username.Length + 3)..]);
     }
 
     private int GetAuthenticationLength()

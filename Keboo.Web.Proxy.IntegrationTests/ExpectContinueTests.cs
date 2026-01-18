@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +14,7 @@ namespace Keboo.Web.Proxy.IntegrationTests;
 public class ExpectContinueTests
 {
     [Test]
-    public async Task ReverseProxy_GotContinueAndOkResponse()
+    public static async Task ReverseProxy_GotContinueAndOkResponse()
     {
         var testSuite = new TestSuite();
         var server = testSuite.GetServer();
@@ -24,7 +24,7 @@ public class ExpectContinueTests
         };
         server.HandleTcpRequest(continueServer.HandleRequest);
 
-        var proxy = testSuite.GetReverseProxy();
+        var proxy = TestSuite.GetReverseProxy();
         proxy.Enable100ContinueBehaviour = true;
         proxy.BeforeRequest += (sender, e) =>
         {
@@ -33,7 +33,7 @@ public class ExpectContinueTests
         };
 
         var client = new HttpContinueClient();
-        var response = await client.Post("localhost", proxy.ProxyEndPoints[0].Port, "Hello server. I am a client.");
+        var response = await HttpContinueClient.Post("localhost", proxy.ProxyEndPoints[0].Port, "Hello server. I am a client.");
 
         await Assert.That(response).IsNotNull();
         await Assert.That(response!.StatusCode).IsEqualTo((int)HttpStatusCode.OK);
@@ -41,14 +41,14 @@ public class ExpectContinueTests
     }
 
     [Test]
-    public async Task ReverseProxy_GotExpectationFailedResponse()
+    public static async Task ReverseProxy_GotExpectationFailedResponse()
     {
         var testSuite = new TestSuite();
         var server = testSuite.GetServer();
         var continueServer = new HttpContinueServer { ExpectationResponse = HttpStatusCode.ExpectationFailed };
         server.HandleTcpRequest(continueServer.HandleRequest);
 
-        var proxy = testSuite.GetReverseProxy();
+        var proxy = TestSuite.GetReverseProxy();
         proxy.Enable100ContinueBehaviour = true;
         proxy.BeforeRequest += (sender, e) =>
         {
@@ -57,21 +57,21 @@ public class ExpectContinueTests
         };
 
         var client = new HttpContinueClient();
-        var response = await client.Post("localhost", proxy.ProxyEndPoints[0].Port, "Hello server. I am a client.");
+        var response = await HttpContinueClient.Post("localhost", proxy.ProxyEndPoints[0].Port, "Hello server. I am a client.");
 
         await Assert.That(response).IsNotNull();
         await Assert.That(response!.StatusCode).IsEqualTo((int)HttpStatusCode.ExpectationFailed);
     }
 
     [Test]
-    public async Task ReverseProxy_GotNotFoundResponse()
+    public static async Task ReverseProxy_GotNotFoundResponse()
     {
         var testSuite = new TestSuite();
         var server = testSuite.GetServer();
         var continueServer = new HttpContinueServer { ExpectationResponse = HttpStatusCode.NotFound };
         server.HandleTcpRequest(continueServer.HandleRequest);
 
-        var proxy = testSuite.GetReverseProxy();
+        var proxy = TestSuite.GetReverseProxy();
         proxy.Enable100ContinueBehaviour = true;
         proxy.BeforeRequest += (sender, e) =>
         {
@@ -80,14 +80,14 @@ public class ExpectContinueTests
         };
 
         var client = new HttpContinueClient();
-        var response = await client.Post("localhost", proxy.ProxyEndPoints[0].Port, "Hello server. I am a client.");
+        var response = await HttpContinueClient.Post("localhost", proxy.ProxyEndPoints[0].Port, "Hello server. I am a client.");
 
         await Assert.That(response).IsNotNull();
         await Assert.That(response!.StatusCode).IsEqualTo((int)HttpStatusCode.NotFound);
     }
 
     [Test]
-    public async Task ReverseProxy_BeforeRequestThrows()
+    public static async Task ReverseProxy_BeforeRequestThrows()
     {
         var testSuite = new TestSuite();
         var server = testSuite.GetServer();
@@ -97,7 +97,7 @@ public class ExpectContinueTests
         var dbzEx = new DivideByZeroException("Undefined");
         var dbzString = $"{dbzEx.GetType()}: {dbzEx.Message}";
 
-        var proxy = testSuite.GetReverseProxy();
+        var proxy = TestSuite.GetReverseProxy();
         proxy.Enable100ContinueBehaviour = true;
         proxy.BeforeRequest += (sender, e) =>
         {
@@ -122,7 +122,7 @@ public class ExpectContinueTests
         };
 
         var client = new HttpContinueClient();
-        var response = await client.Post("localhost", proxy.ProxyEndPoints[0].Port, "Hello server. I am a client.");
+        var response = await HttpContinueClient.Post("localhost", proxy.ProxyEndPoints[0].Port, "Hello server. I am a client.");
 
         await Assert.That(response).IsNotNull();
         await Assert.That(response!.StatusCode).IsEqualTo((int)HttpStatusCode.InternalServerError);

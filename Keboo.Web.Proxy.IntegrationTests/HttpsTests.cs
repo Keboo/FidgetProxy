@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -13,7 +13,7 @@ namespace Keboo.Web.Proxy.IntegrationTests;
 public class HttpsTests
 {
     [Test]
-    public async Task Can_Handle_Https_Request()
+    public static async Task Can_Handle_Https_Request()
     {
         var testSuite = new TestSuite();
 
@@ -23,8 +23,8 @@ public class HttpsTests
             return context.Response.WriteAsync("I am server. I received your greetings.");
         });
 
-        var proxy = testSuite.GetProxy();
-        var client = testSuite.GetClient(proxy);
+        var proxy = TestSuite.GetProxy();
+        var client = TestSuite.GetClient(proxy);
 
         var response = await client.PostAsync(new Uri(server.ListeningHttpsUrl),
             new StringContent("hello server. I am a client."));
@@ -36,7 +36,7 @@ public class HttpsTests
     }
 
     [Test]
-    public async Task Can_Handle_Https_Fake_Tunnel_Request()
+    public static async Task Can_Handle_Https_Fake_Tunnel_Request()
     {
         var testSuite = new TestSuite();
 
@@ -46,14 +46,14 @@ public class HttpsTests
             return context.Response.WriteAsync("I am server. I received your greetings.");
         });
 
-        var proxy = testSuite.GetProxy();
+        var proxy = TestSuite.GetProxy();
         proxy.BeforeRequest += async (sender, e) =>
         {
             e.HttpClient.Request.Url = server.ListeningHttpUrl;
             await Task.FromResult(0);
         };
 
-        var client = testSuite.GetClient(proxy);
+        var client = TestSuite.GetClient(proxy);
 
         var response = await client.PostAsync(new Uri($"https://{Guid.NewGuid().ToString()}.com"),
             new StringContent("hello server. I am a client."));
@@ -65,7 +65,7 @@ public class HttpsTests
     }
 
     [Test]
-    public async Task Can_Handle_Https_Mutual_Tls_Request()
+    public static async Task Can_Handle_Https_Mutual_Tls_Request()
     {
         var testSuite = new TestSuite(true);
 
@@ -75,7 +75,7 @@ public class HttpsTests
             return context.Response.WriteAsync("I am server. I received your greetings.");
         });
 
-        var proxy = testSuite.GetProxy();
+        var proxy = TestSuite.GetProxy();
         var clientCert = proxy.CertificateManager.CreateCertificate("client.com", false);
 
         proxy.ClientCertificateSelectionCallback += async (sender, e) =>
@@ -84,7 +84,7 @@ public class HttpsTests
             await Task.CompletedTask;
         };
 
-        var client = testSuite.GetClient(proxy);
+        var client = TestSuite.GetClient(proxy);
 
         var response = await client.PostAsync(new Uri(server.ListeningHttpsUrl),
             new StringContent("hello server. I am a client."));

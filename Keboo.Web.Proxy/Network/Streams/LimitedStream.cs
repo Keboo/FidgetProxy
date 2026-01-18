@@ -68,7 +68,7 @@ internal class LimitedStream : Stream
         }
 
         var idx = chunkHead.IndexOf(";", StringComparison.Ordinal);
-        if (idx >= 0) chunkHead = chunkHead.Substring(0, idx);
+        if (idx >= 0) chunkHead = chunkHead[..idx];
 
         if (!int.TryParse(chunkHead, NumberStyles.HexNumber, null, out var chunkSize))
             throw new ProxyHttpException($"Invalid chunk length: '{chunkHead}'", null, null);
@@ -109,7 +109,7 @@ internal class LimitedStream : Stream
         }
 
         var idx = chunkHead.IndexOf(";", StringComparison.Ordinal);
-        if (idx >= 0) chunkHead = chunkHead.Substring(0, idx);
+        if (idx >= 0) chunkHead = chunkHead[..idx];
 
         if (!int.TryParse(chunkHead, NumberStyles.HexNumber, null, out var chunkSize))
             throw new ProxyHttpException($"Invalid chunk length: '{chunkHead}'", null, null);
@@ -193,7 +193,7 @@ internal class LimitedStream : Stream
             var buffer = bufferPool.GetBuffer();
             try
             {
-                var res = await ReadAsync(buffer, 0, buffer.Length);
+                var res = await ReadAsync.ReadAsync(buffer);
                 if (res != 0) throw new Exception("Data received after stream end");
             }
             finally

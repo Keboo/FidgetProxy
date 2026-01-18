@@ -190,7 +190,7 @@ internal class BcCertificateMaker : ICertificateMaker
     ///     You must specify a Signing Certificate if and only if you are not creating a
     ///     root.
     /// </exception>
-    private X509Certificate2 MakeCertificateInternal(string hostName, string subjectName,
+    private static X509Certificate2 MakeCertificateInternal(string hostName, string subjectName,
         DateTime validFrom, DateTime validTo, X509Certificate2? signingCertificate)
     {
         if (signingCertificate == null) return GenerateCertificate(null, subjectName, subjectName, validFrom, validTo);

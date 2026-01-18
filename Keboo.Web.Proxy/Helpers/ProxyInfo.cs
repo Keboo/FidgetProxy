@@ -160,12 +160,12 @@ internal class ProxyInfo
         var equalsIndex = tmp.IndexOf("=", StringComparison.InvariantCulture);
         if (equalsIndex >= 0)
         {
-            var protocolTypeStr = tmp.Substring(0, equalsIndex);
+            var protocolTypeStr = tmp[..equalsIndex];
             var protocolType = ParseProtocolType(protocolTypeStr);
 
             if (protocolType.HasValue)
             {
-                var endPointParts = tmp.Substring(equalsIndex + 1).Split(':');
+                var endPointParts = tmp[(equalsIndex + 1)..].Split(':');
                 return new HttpSystemProxyValue(endPointParts[0], int.Parse(endPointParts[1]), protocolType.Value);
             }
         }

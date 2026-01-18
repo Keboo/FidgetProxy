@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Security;
 using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
+
 using Keboo.Web.Proxy.EventArguments;
 using Keboo.Web.Proxy.Exceptions;
 using Keboo.Web.Proxy.Extensions;
@@ -213,7 +209,7 @@ public partial class ProxyServer
                             connection = null;
                         }
                     }
-                    catch (Exception e) when (!(e is ProxyHttpException))
+                    catch (Exception e) when (e is not ProxyHttpException)
                     {
                         throw new ProxyHttpException("Error occured whilst handling session request", e, args);
                     }
@@ -251,7 +247,7 @@ public partial class ProxyServer
         if (noCache) serverConnection = null;
 
         // a connection generator task with captured parameters via closure.
-        var generator = () =>
+        Task<TcpServerConnection> Generator() =>
             TcpConnectionFactory.GetServerConnection(this,
                 args,
                 false,
@@ -287,7 +283,7 @@ public partial class ProxyServer
             // construct the web request that we are going to issue on behalf of the client.
             await HandleHttpSessionRequest(args);
             return true;
-        }, generator, serverConnection);
+        }, Generator, serverConnection);
     }
 
     private async Task HandleHttpSessionRequest(SessionEventArgs args)
@@ -334,7 +330,7 @@ public partial class ProxyServer
     /// <summary>
     ///     Prepare the request headers so that we can avoid encodings not parseable by this proxy
     /// </summary>
-    private void PrepareRequestHeaders(HeaderCollection requestHeaders)
+    private static void PrepareRequestHeaders(HeaderCollection requestHeaders)
     {
         var acceptEncoding = requestHeaders.GetHeaderValueOrNull(KnownHeaders.AcceptEncoding);
 

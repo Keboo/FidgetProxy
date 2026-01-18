@@ -1,7 +1,5 @@
-using System;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+
 using Keboo.Web.Proxy.Extensions;
 using Keboo.Web.Proxy.Models;
 using Keboo.Web.Proxy.Network.Tcp;
@@ -27,7 +25,7 @@ public partial class ProxyServer
         var port = 0;
         try
         {
-            var read = await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
+            var read = await stream.ReadAsync(buffer, cancellationToken);
             if (read < 3) return;
 
             if (buffer[0] == 4)
@@ -40,7 +38,7 @@ public partial class ProxyServer
 
                 buffer[0] = 0;
                 buffer[1] = 90; // request granted
-                await stream.WriteAsync(buffer, 0, 8, cancellationToken);
+                await stream.WriteAsync(buffer.AsMemory(0, 8), cancellationToken);
             }
             else if (buffer[0] == 5)
             {
@@ -65,7 +63,7 @@ public partial class ProxyServer
                 }
 
                 buffer[1] = (byte)acceptedMethod;
-                await stream.WriteAsync(buffer, 0, 2, cancellationToken);
+                await stream.WriteAsync(buffer.AsMemory(0, 2), cancellationToken);
 
                 if (acceptedMethod == 255)
                     // no acceptable method
@@ -73,7 +71,7 @@ public partial class ProxyServer
 
                 if (acceptedMethod == 2)
                 {
-                    read = await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
+                    read = await stream.ReadAsync(buffer, cancellationToken);
                     if (read < 3 || buffer[0] != 1)
                         // authentication version should be 1
                         return;
@@ -92,11 +90,11 @@ public partial class ProxyServer
                         success = await ProxyBasicAuthenticateFunc.Invoke(null, userName, password);
 
                     buffer[1] = success ? (byte)0 : (byte)1;
-                    await stream.WriteAsync(buffer, 0, 2, cancellationToken);
+                    await stream.WriteAsync(buffer.AsMemory(0, 2), cancellationToken);
                     if (!success) return;
                 }
 
-                read = await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
+                read = await stream.ReadAsync(buffer, cancellationToken);
                 if (read < 10 || buffer[1] != 1) return;
 
                 int portIdx;
@@ -127,7 +125,7 @@ public partial class ProxyServer
 
                 port = (buffer[portIdx] << 8) + buffer[portIdx + 1];
                 buffer[1] = 0; // succeeded
-                await stream.WriteAsync(buffer, 0, read, cancellationToken);
+                await stream.WriteAsync(buffer.AsMemory(0, read), cancellationToken);
             }
             else
             {

@@ -67,8 +67,7 @@ internal sealed class Socks4Handler : SocksHandler
     /// <exception cref="ArgumentException"><c>port</c> is invalid.</exception>
     private int GetHostPortBytes(string host, int port, Memory<byte> buffer)
     {
-        if (host == null)
-            throw new ArgumentNullException(nameof(host));
+        ArgumentNullException.ThrowIfNull(host);
 
         if (port <= 0 || port > 65535)
             throw new ArgumentException(nameof(port));
@@ -79,13 +78,13 @@ internal sealed class Socks4Handler : SocksHandler
         var connect = buffer.Span;
         connect[0] = 4;
         connect[1] = 1;
-        PortToBytes(port, connect.Slice(2));
+        PortToBytes(port, connect[2..]);
         connect[4] = connect[5] = connect[6] = 0;
         connect[7] = 1;
         var userNameArray = Encoding.ASCII.GetBytes(Username);
-        userNameArray.CopyTo(connect.Slice(8));
+        userNameArray.CopyTo(connect[8..]);
         connect[8 + Username.Length] = 0;
-        Encoding.ASCII.GetBytes(host).CopyTo(connect.Slice(9 + Username.Length));
+        Encoding.ASCII.GetBytes(host).CopyTo(connect[(9 + Username.Length)..]);
         connect[length - 1] = 0;
         return length;
     }
@@ -99,8 +98,7 @@ internal sealed class Socks4Handler : SocksHandler
     /// <exception cref="ArgumentNullException"><c>remoteEP</c> is null.</exception>
     private int GetEndPointBytes(IPEndPoint remoteEp, Memory<byte> buffer)
     {
-        if (remoteEp == null)
-            throw new ArgumentNullException(nameof(remoteEp));
+        ArgumentNullException.ThrowIfNull(remoteEp);
 
         var length = 9 + Username.Length;
         Debug.Assert(buffer.Length >= length);
@@ -108,9 +106,9 @@ internal sealed class Socks4Handler : SocksHandler
         var connect = buffer.Span;
         connect[0] = 4;
         connect[1] = 1;
-        PortToBytes(remoteEp.Port, connect.Slice(2));
-        remoteEp.Address.GetAddressBytes().CopyTo(connect.Slice(4));
-        Encoding.ASCII.GetBytes(Username).CopyTo(connect.Slice(8));
+        PortToBytes(remoteEp.Port, connect[2..]);
+        remoteEp.Address.GetAddressBytes().CopyTo(connect[4..]);
+        Encoding.ASCII.GetBytes(Username).CopyTo(connect[8..]);
         connect[length - 1] = 0;
         return length;
     }
@@ -173,8 +171,7 @@ internal sealed class Socks4Handler : SocksHandler
     /// <exception cref="ObjectDisposedException">The Socket has been closed.</exception>
     private void Negotiate(byte[] connect, int length)
     {
-        if (connect == null)
-            throw new ArgumentNullException(nameof(connect));
+        ArgumentNullException.ThrowIfNull(connect);
 
         if (length < 2)
             throw new ArgumentException(nameof(length));

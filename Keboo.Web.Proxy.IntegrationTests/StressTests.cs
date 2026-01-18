@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -14,7 +14,7 @@ public class StressTests
 {
     [Test]
     [Timeout(2 * 60 * 1000)]
-    public async Task Stress_Test_With_One_Server_And_Many_Clients(CancellationToken cancellationToken)
+    public static async Task Stress_Test_With_One_Server_And_Many_Clients(CancellationToken cancellationToken)
     {
         var testSuite = new TestSuite();
 
@@ -24,7 +24,7 @@ public class StressTests
             return context.Response.WriteAsync("I am server. I received your greetings.");
         });
 
-        using var proxy = testSuite.GetProxy();
+        using var proxy = TestSuite.GetProxy();
 
         await Task.Delay(1000);
 
@@ -35,7 +35,7 @@ public class StressTests
         {
             var task = Task.Run(async () =>
             {
-                using var client = testSuite.GetClient(proxy);
+                using var client = TestSuite.GetClient(proxy);
 
                 await client.PostAsync(new Uri(server.ListeningHttpsUrl),
                     new StringContent("hello server. I am a client."));

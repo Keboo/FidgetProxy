@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO.Pipelines;
 using System.Net;
 using System.Text;
@@ -49,7 +49,7 @@ internal class HttpContinueServer
         context.Transport.Output.Complete();
     }
 
-    private async Task<Request> ReadHeaders(PipeReader input)
+    private static async Task<Request> ReadHeaders(PipeReader input)
     {
         Request request = null;
         try
@@ -74,7 +74,7 @@ internal class HttpContinueServer
         return request;
     }
 
-    private async Task<Request> ReadBody(Request request, PipeReader input)
+    private static async Task<Request> ReadBody(Request request, PipeReader input)
     {
         var msg = request.HeaderText;
         try

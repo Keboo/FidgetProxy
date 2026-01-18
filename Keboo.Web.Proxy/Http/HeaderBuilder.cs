@@ -80,7 +80,7 @@ internal class HeaderBuilder
 
         int bytes = encoding.GetBytes(str.AsSpan(), span);
 
-        stream.Write(span.Slice(0, bytes));
+        stream.Write(span[..bytes]);
         ArrayPool<byte>.Shared.Return(buf);
 #else
         var data = encoding.GetBytes(str);

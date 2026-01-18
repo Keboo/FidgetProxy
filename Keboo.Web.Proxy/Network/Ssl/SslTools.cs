@@ -275,10 +275,10 @@ internal class SslTools
                     while (extensionsData.Length > 3)
                     {
                         var id = BinaryPrimitives.ReadInt16BigEndian(extensionsData.Span);
-                        var length = BinaryPrimitives.ReadInt16BigEndian(extensionsData.Span.Slice(2));
+                        var length = BinaryPrimitives.ReadInt16BigEndian(extensionsData.Span[2..]);
                         var extension = new SslExtension(id, extensionsData.Slice(4, length), idx++);
                         extensions[extension.Name] = extension;
-                        extensionsData = extensionsData.Slice(4 + length);
+                        extensionsData = extensionsData[(4 + length)..];
                     }
                 }
             }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -13,7 +13,7 @@ namespace Keboo.Web.Proxy.IntegrationTests;
 public class InterceptionTests
 {
     [Test]
-    public async Task Can_Intercept_Get_Requests()
+    public static async Task Can_Intercept_Get_Requests()
     {
         var testSuite = new TestSuite();
 
@@ -26,7 +26,7 @@ public class InterceptionTests
             return context.Response.WriteAsync("I am server. I received your greetings.");
         });
 
-        var proxy = testSuite.GetProxy();
+        var proxy = TestSuite.GetProxy();
         proxy.BeforeRequest += async (sender, e) =>
         {
             if (e.HttpClient.Request.Url.Contains("localhost"))
@@ -38,7 +38,7 @@ public class InterceptionTests
             await Task.FromResult(0);
         };
 
-        var client = testSuite.GetClient(proxy);
+        var client = TestSuite.GetClient(proxy);
 
         var response = await client.GetAsync(new Uri(server.ListeningHttpUrl));
 
@@ -50,7 +50,7 @@ public class InterceptionTests
     }
 
     [Test]
-    public async Task Can_Intercept_Post_Requests()
+    public static async Task Can_Intercept_Post_Requests()
     {
         var testSuite = new TestSuite();
 
@@ -60,7 +60,7 @@ public class InterceptionTests
             return context.Response.WriteAsync("I am server. I received your greetings.");
         });
 
-        var proxy = testSuite.GetProxy();
+        var proxy = TestSuite.GetProxy();
         proxy.BeforeRequest += async (sender, e) =>
         {
             if (e.HttpClient.Request.Url.Contains("localhost"))
@@ -72,7 +72,7 @@ public class InterceptionTests
             await Task.FromResult(0);
         };
 
-        var client = testSuite.GetClient(proxy);
+        var client = TestSuite.GetClient(proxy);
 
         var response = await client.PostAsync(new Uri(server.ListeningHttpUrl),
             new StringContent("hello server. I am a client."));
@@ -84,7 +84,7 @@ public class InterceptionTests
     }
 
     [Test]
-    public async Task Can_Intercept_Put_Requests()
+    public static async Task Can_Intercept_Put_Requests()
     {
         var testSuite = new TestSuite();
 
@@ -94,7 +94,7 @@ public class InterceptionTests
             return context.Response.WriteAsync("I am server. I received your greetings.");
         });
 
-        var proxy = testSuite.GetProxy();
+        var proxy = TestSuite.GetProxy();
         proxy.BeforeRequest += async (sender, e) =>
         {
             if (e.HttpClient.Request.Url.Contains("localhost"))
@@ -106,7 +106,7 @@ public class InterceptionTests
             await Task.FromResult(0);
         };
 
-        var client = testSuite.GetClient(proxy);
+        var client = TestSuite.GetClient(proxy);
 
         var response = await client.PutAsync(new Uri(server.ListeningHttpUrl),
             new StringContent("hello server. I am a client."));
@@ -119,7 +119,7 @@ public class InterceptionTests
 
 
     [Test]
-    public async Task Can_Intercept_Patch_Requests()
+    public static async Task Can_Intercept_Patch_Requests()
     {
         var testSuite = new TestSuite();
 
@@ -129,7 +129,7 @@ public class InterceptionTests
             return context.Response.WriteAsync("I am server. I received your greetings.");
         });
 
-        var proxy = testSuite.GetProxy();
+        var proxy = TestSuite.GetProxy();
         proxy.BeforeRequest += async (sender, e) =>
         {
             if (e.HttpClient.Request.Url.Contains("localhost"))
@@ -141,7 +141,7 @@ public class InterceptionTests
             await Task.FromResult(0);
         };
 
-        var client = testSuite.GetClient(proxy);
+        var client = TestSuite.GetClient(proxy);
 
         var response = await client.PatchAsync(new Uri(server.ListeningHttpUrl),
             new StringContent("hello server. I am a client."));
@@ -153,7 +153,7 @@ public class InterceptionTests
     }
 
     [Test]
-    public async Task Can_Intercept_Delete_Requests()
+    public static async Task Can_Intercept_Delete_Requests()
     {
         var testSuite = new TestSuite();
 
@@ -163,7 +163,7 @@ public class InterceptionTests
             return context.Response.WriteAsync("I am server. I received your greetings.");
         });
 
-        var proxy = testSuite.GetProxy();
+        var proxy = TestSuite.GetProxy();
         proxy.BeforeRequest += async (sender, e) =>
         {
             if (e.HttpClient.Request.Url.Contains("localhost"))
@@ -175,7 +175,7 @@ public class InterceptionTests
             await Task.FromResult(0);
         };
 
-        var client = testSuite.GetClient(proxy);
+        var client = TestSuite.GetClient(proxy);
 
         var response = await client.DeleteAsync(new Uri(server.ListeningHttpUrl));
 

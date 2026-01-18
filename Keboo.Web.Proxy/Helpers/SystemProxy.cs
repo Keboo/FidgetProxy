@@ -244,7 +244,7 @@ internal class SystemProxyManager
         }
     }
 
-    private ProxyInfo GetProxyInfoFromRegistry(RegistryKey reg)
+    private static ProxyInfo GetProxyInfoFromRegistry(RegistryKey reg)
     {
         var pi = new ProxyInfo(null,
             reg.GetValue(RegAutoConfigUrl) as string,

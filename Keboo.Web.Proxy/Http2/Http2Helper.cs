@@ -431,8 +431,8 @@ namespace Keboo.Web.Proxy.Http2
                 {
                     // do not cancel the write operation
                     frameHeader.CopyToBuffer(frameHeaderBuffer);
-                    await output.WriteAsync(frameHeaderBuffer, 0, frameHeaderBuffer.Length/*, cancellationToken*/);
-                    await output.WriteAsync(buffer, 0, length /*, cancellationToken*/);
+                    await output.WriteAsync(frameHeaderBuffer);
+                    await output.WriteAsync(buffer.AsMemory(0, length /*, cancellationToken*/));
                 }
 
                 if (cancellationToken.IsCancellationRequested)
@@ -514,8 +514,8 @@ namespace Keboo.Web.Proxy.Http2
 
             // send the header
             frameHeader.CopyToBuffer(frameHeaderBuffer);
-            await output.WriteAsync(frameHeaderBuffer, 0, frameHeaderBuffer.Length/*, cancellationToken*/);
-            await output.WriteAsync(data, 0, data.Length /*, cancellationToken*/);
+            await output.WriteAsync(frameHeaderBuffer);
+            await output.WriteAsync(data);
         }
 
         private static async Task SendBody(Http2Settings settings, RequestResponseBase rr, Http2FrameHeader frameHeader, byte[] frameHeaderBuffer, byte[] buffer, Stream output)
@@ -537,8 +537,8 @@ namespace Keboo.Web.Proxy.Http2
                     frameHeader.Flags = pos < body.Length ? (Http2FrameFlag)0 : Http2FrameFlag.EndStream;
 
                     frameHeader.CopyToBuffer(frameHeaderBuffer);
-                    await output.WriteAsync(frameHeaderBuffer, 0, frameHeaderBuffer.Length/*, cancellationToken*/);
-                    await output.WriteAsync(buffer, 0, bodyFrameLength /*, cancellationToken*/);
+                    await output.WriteAsync(frameHeaderBuffer);
+                    await output.WriteAsync(buffer.AsMemory(0, bodyFrameLength /*, cancellationToken*/));
                 }
             }
             else
@@ -553,7 +553,7 @@ namespace Keboo.Web.Proxy.Http2
             int totalRead = 0;
             while (bytesToRead > 0)
             {
-                int read = await input.ReadAsync(buffer, offset, bytesToRead, cancellationToken);
+                int read = await input.ReadAsync(buffer.AsMemory(offset, bytesToRead), cancellationToken);
                 if (read == 0)
                 {
                     break;

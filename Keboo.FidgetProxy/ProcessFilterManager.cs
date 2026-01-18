@@ -31,10 +31,7 @@ public class ProcessFilterManager
     /// </summary>
     public void AddFilters(IEnumerable<string> patterns)
     {
-        if (patterns == null)
-        {
-            throw new ArgumentNullException(nameof(patterns));
-        }
+        ArgumentNullException.ThrowIfNull(patterns);
 
         foreach (var pattern in patterns)
         {
