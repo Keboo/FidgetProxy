@@ -11,14 +11,23 @@ public static class TestHelper
     {
         var proxy = new TestProxy($"http://localhost:{localProxyPort}", enableBasicProxyAuthorization);
 
-        var handler = new HttpClientHandler { Proxy = proxy, UseProxy = true };
+        var handler = new HttpClientHandler 
+        { 
+            Proxy = proxy, 
+            UseProxy = true,
+            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        };
 
         return new HttpClient(handler);
     }
 
     public static HttpClient GetHttpClient()
     {
-        return new HttpClient(new HttpClientHandler());
+        var handler = new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        };
+        return new HttpClient(handler);
     }
 
     public class TestProxy : IWebProxy
