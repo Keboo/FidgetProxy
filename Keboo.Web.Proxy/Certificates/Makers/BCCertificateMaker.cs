@@ -1,7 +1,9 @@
-using System;
-using System.IO;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
+
+using Keboo.Web.Proxy.Helpers;
+using Keboo.Web.Proxy.Shared;
+
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X509;
@@ -16,8 +18,7 @@ using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.X509;
-using Keboo.Web.Proxy.Helpers;
-using Keboo.Web.Proxy.Shared;
+
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
 namespace Keboo.Web.Proxy.Network.Certificate;
@@ -34,12 +35,9 @@ internal class BcCertificateMaker : ICertificateMaker
     private static bool _doNotSetFriendlyName;
     private readonly int certificateValidDays;
 
-    private readonly ExceptionHandler? exceptionFunc;
-
-    internal BcCertificateMaker(ExceptionHandler? exceptionFunc, int certificateValidDays)
+    internal BcCertificateMaker(int certificateValidDays)
     {
         this.certificateValidDays = certificateValidDays;
-        this.exceptionFunc = exceptionFunc;
     }
 
     /// <summary>

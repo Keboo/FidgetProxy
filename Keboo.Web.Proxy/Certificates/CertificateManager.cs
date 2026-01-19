@@ -1,12 +1,7 @@
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Security.Cryptography.X509Certificates;
-using System.Threading;
-using System.Threading.Tasks;
+
 using Keboo.Web.Proxy.Helpers;
 using Keboo.Web.Proxy.Network.Certificate;
 using Keboo.Web.Proxy.Shared;
@@ -39,45 +34,45 @@ public enum CertificateEngine
 /// </summary>
 public sealed class CertificateManager : IDisposable
 {
-    private const string DefaultRootCertificateIssuer = "Keboo";
+    private const string DefaultRootCertificateIssuer = "DO_NOT_TRUST_Keboo.Web.Proxy";
 
-    private const string DefaultRootRootCertificateName = "Keboo Root Certificate Authority";
+    private const string DefaultRootRootCertificateName = "DO_NOT_TRUST_Keboo.Web.Proxy";
 
     private static readonly ConcurrentDictionary<string, object> _saveCertificateLocks = new();
 
     /// <summary>
     ///     Cache dictionary
     /// </summary>
-    private readonly ConcurrentDictionary<string, CachedCertificate> cachedCertificates = new();
+    private readonly ConcurrentDictionary<string, CachedCertificate> _cachedCertificates = [];
 
-    private readonly CancellationTokenSource clearCertificatesTokenSource = new();
+    private readonly CancellationTokenSource _clearCertificatesTokenSource = new();
 
     /// <summary>
     ///     Used to prevent multiple threads working on same certificate generation
     ///     when burst certificate generation requests happen for same certificate.
     /// </summary>
-    private readonly SemaphoreSlim pendingCertificateCreationTaskLock = new(1);
+    private readonly SemaphoreSlim _pendingCertificateCreationTaskLock = new(1);
 
     /// <summary>
     ///     A list of pending certificate creation tasks.
     /// </summary>
-    private readonly Dictionary<string, Task<X509Certificate2?>> pendingCertificateCreationTasks = new();
+    private readonly Dictionary<string, Task<X509Certificate2?>> _pendingCertificateCreationTasks = [];
 
-    private readonly object rootCertCreationLock = new();
+    private readonly Lock _rootCertCreationLock = new();
 
     private ICertificateMaker? certEngineValue;
 
-    private ICertificateCache certificateCache = new DefaultCertificateDiskCache();
+    private ICertificateCache _certificateCache = new DefaultCertificateDiskCache();
 
-    private bool disposed;
+    private bool _disposed;
 
     private CertificateEngine engine;
 
-    private string? issuer;
+    private string? _issuer;
 
-    private X509Certificate2? rootCertificate;
+    private X509Certificate2? _rootCertificate;
 
-    private string? rootCertificateName;
+    private string? _rootCertificateName;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="CertificateManager" /> class.
@@ -120,14 +115,14 @@ public sealed class CertificateManager : IDisposable
                 switch (engine)
                 {
                     case CertificateEngine.BouncyCastle:
-                        certEngineValue = new BcCertificateMaker(ExceptionFunc, CertificateValidDays);
+                        certEngineValue = new BcCertificateMaker(CertificateValidDays);
                         break;
                     case CertificateEngine.BouncyCastleFast:
-                        certEngineValue = new BcCertificateMakerFast(ExceptionFunc, CertificateValidDays);
+                        certEngineValue = new BcCertificateMakerFast(CertificateValidDays);
                         break;
                     case CertificateEngine.DefaultWindows:
                     default:
-                        certEngineValue = new WinCertificateMaker(ExceptionFunc, CertificateValidDays);
+                        certEngineValue = new WinCertificateMaker(CertificateValidDays);
                         break;
                 }
 
@@ -210,8 +205,8 @@ public sealed class CertificateManager : IDisposable
     /// </summary>
     public string RootCertificateIssuerName
     {
-        get => issuer ?? DefaultRootCertificateIssuer;
-        set => issuer = value;
+        get => _issuer ?? DefaultRootCertificateIssuer;
+        set => _issuer = value;
     }
 
     /// <summary>
@@ -223,8 +218,8 @@ public sealed class CertificateManager : IDisposable
     /// </summary>
     public string RootCertificateName
     {
-        get => rootCertificateName ?? DefaultRootRootCertificateName;
-        set => rootCertificateName = value;
+        get => _rootCertificateName ?? DefaultRootRootCertificateName;
+        set => _rootCertificateName = value;
     }
 
     /// <summary>
@@ -232,11 +227,11 @@ public sealed class CertificateManager : IDisposable
     /// </summary>
     public X509Certificate2? RootCertificate
     {
-        get => rootCertificate;
+        get => _rootCertificate;
         set
         {
             ClearRootCertificate();
-            rootCertificate = value;
+            _rootCertificate = value;
         }
     }
 
@@ -254,8 +249,8 @@ public sealed class CertificateManager : IDisposable
     /// </summary>
     public ICertificateCache CertificateStorage
     {
-        get => certificateCache;
-        set => certificateCache = value ?? new DefaultCertificateDiskCache();
+        get => _certificateCache;
+        set => _certificateCache = value ?? new DefaultCertificateDiskCache();
     }
 
     /// <summary>
@@ -422,7 +417,7 @@ public sealed class CertificateManager : IDisposable
 
                 try
                 {
-                    certificate = certificateCache.LoadCertificate(subjectName, StorageFlag);
+                    certificate = _certificateCache.LoadCertificate(subjectName, StorageFlag);
 
                     if (certificate != null && certificate.NotAfter <= DateTime.Now)
                     {
@@ -453,7 +448,7 @@ public sealed class CertificateManager : IDisposable
                                 try
                                 {
                                     //no two tasks with same subject name should together enter here 
-                                    certificateCache.SaveCertificate(subjectName, certificate);
+                                    _certificateCache.SaveCertificate(subjectName, certificate);
                                 }
                                 finally
                                 {
@@ -491,7 +486,7 @@ public sealed class CertificateManager : IDisposable
     public async Task<X509Certificate2?> CreateServerCertificate(string certificateName)
     {
         // check in cache first
-        if (cachedCertificates.TryGetValue(certificateName, out var cached))
+        if (_cachedCertificates.TryGetValue(certificateName, out var cached))
         {
             cached.LastAccess = DateTime.UtcNow;
             return cached.Certificate;
@@ -499,11 +494,11 @@ public sealed class CertificateManager : IDisposable
 
         var createdTask = false;
         Task<X509Certificate2?>? createCertificateTask;
-        await pendingCertificateCreationTaskLock.WaitAsync();
+        await _pendingCertificateCreationTaskLock.WaitAsync();
         try
         {
             // check in cache first
-            if (cachedCertificates.TryGetValue(certificateName, out cached))
+            if (_cachedCertificates.TryGetValue(certificateName, out cached))
             {
                 cached.LastAccess = DateTime.UtcNow;
                 return cached.Certificate;
@@ -511,24 +506,24 @@ public sealed class CertificateManager : IDisposable
 
             // handle burst requests with same certificate name
             // by checking for existing task for same certificate name
-            if (!pendingCertificateCreationTasks.TryGetValue(certificateName, out createCertificateTask))
+            if (!_pendingCertificateCreationTasks.TryGetValue(certificateName, out createCertificateTask))
             {
                 // run certificate creation task & add it to pending tasks
                 createCertificateTask = Task.Run(() =>
                 {
                     var result = CreateCertificate(certificateName, false);
-                    if (result != null) cachedCertificates.TryAdd(certificateName, new CachedCertificate(result));
+                    if (result != null) _cachedCertificates.TryAdd(certificateName, new CachedCertificate(result));
 
                     return result;
                 });
 
-                pendingCertificateCreationTasks[certificateName] = createCertificateTask;
+                _pendingCertificateCreationTasks[certificateName] = createCertificateTask;
                 createdTask = true;
             }
         }
         finally
         {
-            pendingCertificateCreationTaskLock.Release();
+            _pendingCertificateCreationTaskLock.Release();
         }
 
         var certificate = await createCertificateTask;
@@ -536,14 +531,14 @@ public sealed class CertificateManager : IDisposable
         if (createdTask)
         {
             // cleanup pending task
-            await pendingCertificateCreationTaskLock.WaitAsync();
+            await _pendingCertificateCreationTaskLock.WaitAsync();
             try
             {
-                pendingCertificateCreationTasks.Remove(certificateName);
+                _pendingCertificateCreationTasks.Remove(certificateName);
             }
             finally
             {
-                pendingCertificateCreationTaskLock.Release();
+                _pendingCertificateCreationTaskLock.Release();
             }
         }
 
@@ -555,14 +550,14 @@ public sealed class CertificateManager : IDisposable
     /// </summary>
     internal async void ClearIdleCertificates()
     {
-        var cancellationToken = clearCertificatesTokenSource.Token;
+        var cancellationToken = _clearCertificatesTokenSource.Token;
         while (!cancellationToken.IsCancellationRequested)
         {
             var cutOff = DateTime.UtcNow.AddMinutes(-CertificateCacheTimeOutMinutes);
 
-            var outdated = cachedCertificates.Where(x => x.Value.LastAccess < cutOff).ToList();
+            var outdated = _cachedCertificates.Where(x => x.Value.LastAccess < cutOff).ToList();
 
-            foreach (var cache in outdated) cachedCertificates.TryRemove(cache.Key, out _);
+            foreach (var cache in outdated) _cachedCertificates.TryRemove(cache.Key, out _);
 
             // after a minute come back to check for outdated certificates in cache
             try
@@ -581,7 +576,7 @@ public sealed class CertificateManager : IDisposable
     /// </summary>
     internal void StopClearIdleCertificates()
     {
-        clearCertificatesTokenSource.Cancel();
+        _clearCertificatesTokenSource.Cancel();
     }
 
     /// <summary>
@@ -593,7 +588,7 @@ public sealed class CertificateManager : IDisposable
     /// </returns>
     public bool CreateRootCertificate(bool persistToFile = true)
     {
-        lock (rootCertCreationLock)
+        lock (_rootCertCreationLock)
         {
             if (persistToFile && RootCertificate == null) RootCertificate = LoadRootCertificate();
 
@@ -602,7 +597,7 @@ public sealed class CertificateManager : IDisposable
             if (!OverwritePfxFile)
                 try
                 {
-                    var rootCert = certificateCache.LoadRootCertificate(PfxFilePath, PfxPassword,
+                    var rootCert = _certificateCache.LoadRootCertificate(PfxFilePath, PfxPassword,
                         X509KeyStorageFlags.Exportable);
 
                     if (rootCert != null && rootCert.NotAfter <= DateTime.Now)
@@ -637,14 +632,14 @@ public sealed class CertificateManager : IDisposable
                 {
                     try
                     {
-                        certificateCache.Clear();
+                        _certificateCache.Clear();
                     }
                     catch (Exception e)
                     {
                         OnException(new Exception("An error happened when clearing certificate cache.", e));
                     }
 
-                    certificateCache.SaveRootCertificate(PfxFilePath, PfxPassword, RootCertificate);
+                    _certificateCache.SaveRootCertificate(PfxFilePath, PfxPassword, RootCertificate);
                 }
                 catch (Exception e)
                 {
@@ -664,7 +659,7 @@ public sealed class CertificateManager : IDisposable
         try
         {
             var rootCert =
-                certificateCache.LoadRootCertificate(PfxFilePath, PfxPassword, X509KeyStorageFlags.Exportable);
+                _certificateCache.LoadRootCertificate(PfxFilePath, PfxPassword, X509KeyStorageFlags.Exportable);
 
             if (rootCert != null && rootCert.NotAfter <= DateTime.Now)
             {
@@ -937,18 +932,18 @@ public sealed class CertificateManager : IDisposable
     /// </summary>
     public void ClearRootCertificate()
     {
-        certificateCache.Clear();
-        cachedCertificates.Clear();
-        rootCertificate = null;
+        _certificateCache.Clear();
+        _cachedCertificates.Clear();
+        _rootCertificate = null;
     }
 
     private void Dispose(bool disposing)
     {
-        if (disposed) return;
+        if (_disposed) return;
 
-        if (disposing) clearCertificatesTokenSource.Dispose();
+        if (disposing) _clearCertificatesTokenSource.Dispose();
 
-        disposed = true;
+        _disposed = true;
     }
 
     ~CertificateManager()
