@@ -1,7 +1,9 @@
-using System;
-using System.IO;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
+
+using Keboo.Web.Proxy.Helpers;
+using Keboo.Web.Proxy.Shared;
+
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.X509;
@@ -16,8 +18,7 @@ using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.X509;
-using Keboo.Web.Proxy.Helpers;
-using Keboo.Web.Proxy.Shared;
+
 using X509Certificate = Org.BouncyCastle.X509.X509Certificate;
 
 namespace Keboo.Web.Proxy.Network.Certificate;
@@ -33,13 +34,11 @@ internal class BcCertificateMakerFast : ICertificateMaker
     // Set this flag to true when exception detected to avoid further exceptions
     private static bool _doNotSetFriendlyName;
 
-    private readonly ExceptionHandler? exceptionFunc;
-    private readonly int certificateValidDays;
+    private readonly int _certificateValidDays;
 
-    internal BcCertificateMakerFast(ExceptionHandler? exceptionFunc, int certificateValidDays)
+    internal BcCertificateMakerFast(int certificateValidDays)
     {
-        this.certificateValidDays = certificateValidDays;
-        this.exceptionFunc = exceptionFunc;
+        _certificateValidDays = certificateValidDays;
         KeyPair = GenerateKeyPair();
     }
 
@@ -222,7 +221,7 @@ internal class BcCertificateMakerFast : ICertificateMaker
         bool switchToMtaIfNeeded, X509Certificate2? signingCert = null)
     {
         return MakeCertificateInternal(subject, $"CN={subject}",
-            DateTime.UtcNow.AddDays(-CertificateGraceDays), DateTime.UtcNow.AddDays(certificateValidDays),
+            DateTime.UtcNow.AddDays(-CertificateGraceDays), DateTime.UtcNow.AddDays(_certificateValidDays),
             signingCert);
     }
 }

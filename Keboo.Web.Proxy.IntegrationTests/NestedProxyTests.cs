@@ -53,7 +53,7 @@ public class NestedProxyTests
         var proxy1 = TestSuite.GetProxy();
         proxy1.ProxyBasicAuthenticateFunc = async (session, username, password) =>
         {
-            session.UserData = "Test";
+            session!.UserData = "Test";
             return await Task.FromResult(true);
         };
 

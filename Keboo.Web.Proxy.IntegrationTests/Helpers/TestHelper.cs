@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Http;
 
@@ -11,14 +11,27 @@ public static class TestHelper
     {
         var proxy = new TestProxy($"http://localhost:{localProxyPort}", enableBasicProxyAuthorization);
 
-        var handler = new HttpClientHandler { Proxy = proxy, UseProxy = true };
+        var handler = new HttpClientHandler 
+        { 
+            Proxy = proxy, 
+            UseProxy = true,
+            // Accept self-signed certificates generated for testing. This is safe in integration tests
+            // where we control both the client and server, but should not be used in production code.
+            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        };
 
         return new HttpClient(handler);
     }
 
     public static HttpClient GetHttpClient()
     {
-        return new HttpClient(new HttpClientHandler());
+        var handler = new HttpClientHandler
+        {
+            // Accept self-signed certificates generated for testing. This is safe in integration tests
+            // where we control both the client and server, but should not be used in production code.
+            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        };
+        return new HttpClient(handler);
     }
 
     public class TestProxy : IWebProxy
@@ -38,7 +51,7 @@ public static class TestHelper
         }
 
         public Uri ProxyUri { get; set; }
-        public ICredentials Credentials { get; set; }
+        public ICredentials? Credentials { get; set; }
 
         public Uri GetProxy(Uri destination)
         {

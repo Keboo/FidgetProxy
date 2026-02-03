@@ -21,8 +21,8 @@ public class TestServer : IDisposable
 {
     private readonly IHost host;
 
-    private Func<HttpContext, Task> requestHandler;
-    private Func<ConnectionContext, Task> tcpRequestHandler;
+    private Func<HttpContext, Task>? _requestHandler;
+    private Func<ConnectionContext, Task>? _tcpRequestHandler;
 
     public TestServer(X509Certificate2 serverCertificate, bool requireMutualTls)
     {
@@ -35,7 +35,7 @@ public class TestServer : IDisposable
             })
             .ConfigureWebHostDefaults(webBuilder =>
             {
-                webBuilder.UseStartup(x => new Startup(() => requestHandler));
+                webBuilder.UseStartup(x => new Startup(() => _requestHandler));
                 webBuilder.ConfigureKestrel(options =>
                 {
                     options.Listen(IPAddress.Loopback, 0);
@@ -59,12 +59,12 @@ public class TestServer : IDisposable
                     {
                         listenOptions.Run(context =>
                         {
-                            if (tcpRequestHandler == null)
+                            if (_tcpRequestHandler == null)
                             {
                                 throw new Exception("Test server not configured to handle tcp request.");
                             }
 
-                            return tcpRequestHandler(context);
+                            return _tcpRequestHandler(context);
                         });
                     });
                 });
@@ -75,7 +75,7 @@ public class TestServer : IDisposable
 
         var addresses = host.Services.GetRequiredService<IServer>()
             .Features.Get<IServerAddressesFeature>()
-            .Addresses.ToArray();
+            ?.Addresses.ToArray() ?? [];
 
         HttpListeningPort = new Uri(addresses[0]).Port;
         HttpsListeningPort = new Uri(addresses[1]).Port;
@@ -98,33 +98,33 @@ public class TestServer : IDisposable
 
     public void HandleRequest(Func<HttpContext, Task> requestHandler)
     {
-        this.requestHandler = requestHandler;
+        this._requestHandler = requestHandler;
     }
 
     public void HandleTcpRequest(Func<ConnectionContext, Task> tcpRequestHandler)
     {
-        this.tcpRequestHandler = tcpRequestHandler;
+        this._tcpRequestHandler = tcpRequestHandler;
     }
 
     private class Startup
     {
-        private readonly Func<Func<HttpContext, Task>> requestHandler;
+        private readonly Func<Func<HttpContext, Task>?>? _requestHandler;
 
-        public Startup(Func<Func<HttpContext, Task>> requestHandler)
+        public Startup(Func<Func<HttpContext, Task>?>? requestHandler)
         {
-            this.requestHandler = requestHandler;
+            _requestHandler = requestHandler;
         }
 
         public void Configure(IApplicationBuilder app)
         {
             app.Run(context =>
             {
-                if (requestHandler == null)
+                if (_requestHandler is null)
                 {
                     throw new Exception("Test server not configured to handle request.");
                 }
 
-                return requestHandler()(context);
+                return _requestHandler()?.Invoke(context) ?? Task.CompletedTask;
             });
         }
 

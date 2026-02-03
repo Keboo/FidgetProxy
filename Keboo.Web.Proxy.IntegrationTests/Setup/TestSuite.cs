@@ -11,7 +11,8 @@ public class TestSuite
     public TestSuite(bool requireMutualTls = false)
     {
         var dummyProxy = new ProxyServer();
-        var serverCertificate = dummyProxy.CertificateManager.CreateServerCertificate("localhost").Result;
+        var serverCertificate = dummyProxy.CertificateManager.CreateServerCertificate("localhost").Result
+            ?? throw new InvalidOperationException("Failed to create certificate");
         server = new TestServer(serverCertificate, requireMutualTls);
     }
 
@@ -20,7 +21,7 @@ public class TestSuite
         return server;
     }
 
-    public static ProxyServer GetProxy(ProxyServer upStreamProxy = null)
+    public static ProxyServer GetProxy(ProxyServer? upStreamProxy = null)
     {
         if (upStreamProxy != null)
         {
@@ -30,7 +31,7 @@ public class TestSuite
         return new TestProxyServer(false).ProxyServer;
     }
 
-    public static ProxyServer GetReverseProxy(ProxyServer upStreamProxy = null)
+    public static ProxyServer GetReverseProxy(ProxyServer? upStreamProxy = null)
     {
         if (upStreamProxy != null)
         {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net;
 using Keboo.Web.Proxy.Models;
 using Keboo.Web.Proxy.Network;
@@ -7,7 +7,7 @@ namespace Keboo.Web.Proxy.IntegrationTests.Setup;
 
 public class TestProxyServer : IDisposable
 {
-    public TestProxyServer(bool isReverseProxy, ProxyServer upStreamProxy = null)
+    public TestProxyServer(bool isReverseProxy, ProxyServer? upStreamProxy = null)
     {
         ProxyServer = new ProxyServer();
 
