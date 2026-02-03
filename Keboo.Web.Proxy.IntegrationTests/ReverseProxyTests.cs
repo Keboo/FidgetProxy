@@ -143,7 +143,7 @@ public class ReverseProxyTests
 
         var proxy = TestSuite.GetReverseProxy();
         var endpoint =
-            proxy.ProxyEndPoints.Where(x => x is TransparentProxyEndPoint).First() as TransparentProxyEndPoint;
+            proxy.ProxyEndPoints.OfType<TransparentProxyEndPoint>().First();
 
         endpoint.BeforeSslAuthenticate += async (sender, e) =>
         {

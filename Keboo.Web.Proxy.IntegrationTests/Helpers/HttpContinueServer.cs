@@ -12,12 +12,12 @@ namespace Keboo.Web.Proxy.IntegrationTests.Helpers;
 internal class HttpContinueServer
 {
     private static readonly Encoding _msgEncoding = HttpHelper.GetEncodingFromContentType(null);
-    public HttpStatusCode ExpectationResponse;
-    public string ResponseBody;
+    public HttpStatusCode ExpectationResponse { get; set; }
+    public string? ResponseBody { get; set; }
 
     public async Task HandleRequest(ConnectionContext context)
     {
-        var request = await ReadHeaders(context.Transport.Input);
+        var request = await ReadHeaders(context.Transport.Input) ?? throw new Exception("Failed to read headers");
 
         if (request.ExpectContinue)
         {
@@ -37,7 +37,7 @@ internal class HttpContinueServer
 
         request = await ReadBody(request, context.Transport.Input);
 
-        var responseMsg = _msgEncoding.GetBytes(ResponseBody);
+        var responseMsg = _msgEncoding.GetBytes(ResponseBody ?? "");
         var respondOk = new Response(responseMsg)
         {
             HttpVersion = new Version(1, 1),
@@ -49,9 +49,9 @@ internal class HttpContinueServer
         context.Transport.Output.Complete();
     }
 
-    private static async Task<Request> ReadHeaders(PipeReader input)
+    private static async Task<Request?> ReadHeaders(PipeReader input)
     {
-        Request request = null;
+        Request? request = null;
         try
         {
             var requestMsg = string.Empty;
@@ -74,12 +74,13 @@ internal class HttpContinueServer
         return request;
     }
 
-    private static async Task<Request> ReadBody(Request request, PipeReader input)
+    private static async Task<Request?> ReadBody(Request request, PipeReader input)
     {
         var msg = request.HeaderText;
+        Request? parsedRequest = request;
         try
         {
-            while ((request = HttpMessageParsing.ParseRequest(msg, true)) == null)
+            while ((parsedRequest = HttpMessageParsing.ParseRequest(msg, true)) is null)
             {
                 var result = await input.ReadAsync();
                 foreach (var seg in result.Buffer)
@@ -95,6 +96,6 @@ internal class HttpContinueServer
             Console.WriteLine($"{ex.GetType()}: {ex.Message}");
         }
 
-        return request;
+        return parsedRequest;
     }
 }

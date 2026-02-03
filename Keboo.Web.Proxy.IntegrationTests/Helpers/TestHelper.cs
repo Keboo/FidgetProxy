@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Http;
 
@@ -51,7 +51,7 @@ public static class TestHelper
         }
 
         public Uri ProxyUri { get; set; }
-        public ICredentials Credentials { get; set; }
+        public ICredentials? Credentials { get; set; }
 
         public Uri GetProxy(Uri destination)
         {

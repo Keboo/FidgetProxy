@@ -1,8 +1,10 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace Keboo.Web.Proxy.Helpers;
 
+[SupportedOSPlatform("windows")]
 internal partial class NativeMethods
 {
     // Keeps it from getting garbage collected
